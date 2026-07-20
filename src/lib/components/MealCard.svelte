@@ -1,11 +1,15 @@
 <script lang="ts">
   import type { DayLog, Meal, Plan, Slot, SlotOption } from '../types';
   import { optionMacros } from '../data/foods';
-  import { mealMacros } from '../compute';
+  import { mealMacros, slotMacros } from '../compute';
 
-  let { meal, day = $bindable(), dayType, plan, freqCounts, save }: {
-    meal: Meal; day: DayLog; dayType: string; plan: Plan; freqCounts: Record<string, number>; save: () => void;
+  let { meal, day = $bindable(), dayType, plan, freqCounts, dense = false, save }: {
+    meal: Meal; day: DayLog; dayType: string; plan: Plan; freqCounts: Record<string, number>; dense?: boolean; save: () => void;
   } = $props();
+
+  // Collapsible body: in compact view cards start closed, expandable on tap.
+  let open = $state(true);
+  $effect(() => { open = !dense; });
 
   const showNote = $derived(!meal.noteOnlyTraining || dayType === 'allenamento');
   const piattoOn = $derived(!!day.piatto?.[meal.id]);
@@ -46,6 +50,21 @@
     return m ? Math.round(m.kcal) : null;
   }
 
+  function slotKcal(slot: Slot): number | null {
+    const m = slotMacros(slot);
+    return m ? Math.round(m.kcal) : null;
+  }
+
+  function optMac(opt: SlotOption): { c: number; p: number; f: number } | null {
+    const m = optionMacros(opt);
+    return m ? { c: Math.round(m.carbs), p: Math.round(m.protein), f: Math.round(m.fat) } : null;
+  }
+
+  function slotMac(slot: Slot): { c: number; p: number; f: number } | null {
+    const m = slotMacros(slot);
+    return m ? { c: Math.round(m.carbs), p: Math.round(m.protein), f: Math.round(m.fat) } : null;
+  }
+
   function covered(slot: Slot) {
     return piattoOn && (slot.id === 'gluc' || slot.id === 'prot' || slot.id === 'verdura');
   }
@@ -71,7 +90,9 @@
 </script>
 
 <div class="card mealcard">
-  <div class="hd">
+  <div class="hd" class:clickable={dense} role="button" tabindex="0"
+    onclick={() => { if (dense) open = !open; }}
+    onkeydown={(e) => { if (dense && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open = !open; } }}>
     <span class="ic">{meal.icon}</span>
     <div class="tt">
       {meal.name}
@@ -79,7 +100,9 @@
       {#if meal.waterNote}<small>💧 {meal.waterNote}</small>{/if}
     </div>
     {#if kcal > 0}<span class="badge done">{kcal} kcal</span>{/if}
+    {#if dense}<span class="chev" class:open>›</span>{/if}
   </div>
+  {#if open}
   <div class="bd">
     {#if meal.hasPiatto}
       <button class="piatto" class:sel={piattoOn} onclick={togglePiatto}>
@@ -135,7 +158,7 @@
                 <span class="txt">
                   <b>{opt.label}</b>
                   {#if opt.detail}<span>{opt.detail}</span>{/if}
-                  {#if optKcal(opt) !== null}<span class="kc">{optKcal(opt)} kcal</span>{/if}
+                  {#if optMac(opt)}<span class="macs"><b class="k">{optKcal(opt)} kcal</b> · C {optMac(opt)!.c} · P {optMac(opt)!.p} · G {optMac(opt)!.f}</span>{/if}
                   {#if opt.lim}<span class="lim">{opt.lim}</span>{/if}
                   {#if optDisabled(slot, opt)}<span class="lim over">max settimanale raggiunto</span>{/if}
                 </span>
@@ -154,10 +177,15 @@
         {:else if slot.kind === 'check'}
           <button class="opt check" class:sel={isChk(slot)} onclick={() => toggleChk(slot)}>
             <span class="box">{isChk(slot) ? '✓' : ''}</span>
-            <span class="txt"><b>{slot.label}</b>{#if slot.detail}<span>{slot.detail}</span>{/if}</span>
+            <span class="txt">
+              <b>{slot.label}</b>
+              {#if slot.detail}<span>{slot.detail}</span>{/if}
+              {#if slotMac(slot)}<span class="macs"><b class="k">{slotKcal(slot)} kcal</b> · C {slotMac(slot)!.c} · P {slotMac(slot)!.p} · G {slotMac(slot)!.f}</span>{/if}
+            </span>
           </button>
         {/if}
       </div>
     {/each}
   </div>
+  {/if}
 </div>

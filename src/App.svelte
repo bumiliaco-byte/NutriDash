@@ -8,6 +8,7 @@
   import { downloadBackup, importBackup } from './lib/backup';
   import { weekDays, logsInRange, tallyFrequencies } from './lib/stats';
   import MacroSummary from './lib/components/MacroSummary.svelte';
+  import DayProgress from './lib/components/DayProgress.svelte';
   import WaterCard from './lib/components/WaterCard.svelte';
   import MealCard from './lib/components/MealCard.svelte';
   import WeeklyFrequencies from './lib/components/WeeklyFrequencies.svelte';
@@ -32,6 +33,20 @@
   let profileName = $state('');
   let dataVersion = $state(0);
   let fileInput = $state<HTMLInputElement>();
+
+  // UI preferences (persisted): compact view, dark theme, bold text.
+  let dense = $state(localStorage.getItem('nd_dense') === '1');
+  let dark = $state(localStorage.getItem('nd_dark') === '1');
+  let bold = $state(localStorage.getItem('nd_bold') === '1');
+  $effect(() => {
+    const b = document.body;
+    b.classList.toggle('dense', dense);
+    b.classList.toggle('dark', dark);
+    b.classList.toggle('bold', bold);
+    localStorage.setItem('nd_dense', dense ? '1' : '0');
+    localStorage.setItem('nd_dark', dark ? '1' : '0');
+    localStorage.setItem('nd_bold', bold ? '1' : '0');
+  });
 
   const meals = $derived(day && plan ? mealsFor(day.dayType, plan, day) : []);
   const dateLabel = $derived(labelFor(dateStr));
@@ -127,6 +142,18 @@
         NutriDash <span class="ver">V1</span>
         <small>Piano di {profileName}</small>
       </div>
+      <div class="grow"></div>
+      <div class="prefs">
+        <button class="pf" onclick={() => (dense = !dense)} title="Vista estesa / compatta">
+          {dense ? 'Estesa' : 'Compatta'}
+        </button>
+        <button class="pf" onclick={() => (dark = !dark)} title="Tema chiaro / scuro">
+          {dark ? '☀️ Chiaro' : '🌙 Scuro'}
+        </button>
+        <button class="pf" onclick={() => (bold = !bold)} title="Testo normale / grassetto">
+          {bold ? 'Normale' : 'Grassetto'}
+        </button>
+      </div>
     </div>
 
     <div class="datebar">
@@ -156,9 +183,11 @@
 <div class="wrap">
   {#if ready && day && plan}
     <MacroSummary {day} {plan} />
+    <DayProgress {day} {plan} />
     <WaterCard bind:day {save} />
-    {#each meals as meal (meal.id)}
-      <MealCard {meal} bind:day dayType={day.dayType} {plan} {freqCounts} {save} />
+    {#each meals as meal, i (meal.id)}
+      {#if i > 0}<div class="mealsep"><span>+</span></div>{/if}
+      <MealCard {meal} bind:day dayType={day.dayType} {plan} {freqCounts} {dense} {save} />
     {/each}
     <button class="reset" onclick={resetDay}>↺ Azzera questa giornata</button>
 

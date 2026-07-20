@@ -4,6 +4,7 @@
   --amber:#b7791f; --amber-l:#fbf0da;
   --red:#c0392b; --red-l:#fbe5e2;
   --bg:#f4f7f4; --card:#ffffff; --ink:#20302a; --muted:#6b7d72; --line:#e2e8e3;
+  --soft:#f2f7f3;
   --radius:16px; --shadow:0 2px 10px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -71,6 +72,9 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .opt .txt span{display:block;color:var(--muted);font-size:.8rem;margin-top:1px}
 .opt .kc{display:inline-block;margin-top:4px;font-size:.68rem;font-weight:700;color:var(--green-d);
   background:var(--green-l);padding:1px 7px;border-radius:9px}
+.opt .macs{display:inline-block;margin-top:4px;font-size:.68rem;font-weight:700;
+  color:var(--muted);background:var(--soft,#f2f7f3);padding:1px 8px;border-radius:9px}
+.opt .macs .k{color:var(--green-d);font-weight:800}
 .opt.sel{border-color:var(--green);background:var(--green-l)}
 .opt.sel .box{background:var(--green);border-color:var(--green)}
 .opt.sel .txt b{color:var(--green-d)}
@@ -167,3 +171,61 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .monthgrid .mc.today{border-color:var(--green)}
 .monthgrid .mc.cur{box-shadow:0 0 0 2px var(--green-l);border-color:var(--green)}
 .monthlegend{font-size:.7rem;color:var(--muted);margin-top:8px}
+
+/* preferenze (header) */
+.brand .grow{flex:1}
+.prefs{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.prefs .pf{background:rgba(255,255,255,.16);border:none;color:#fff;border-radius:10px;
+  padding:6px 10px;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;line-height:1}
+.prefs .pf:hover{background:rgba(255,255,255,.28)}
+.prefs .pf:active{transform:scale(.96)}
+
+/* separatore "+" tra i pasti */
+.mealsep{display:flex;align-items:center;margin:4px 0}
+.mealsep::before,.mealsep::after{content:"";flex:1;height:1.5px;background:var(--line)}
+.mealsep span{margin:0 12px;width:32px;height:32px;border-radius:50%;background:var(--green-l);
+  color:var(--green-d);display:grid;place-items:center;font-size:1.25rem;font-weight:800;
+  box-shadow:var(--shadow)}
+
+/* vista compatta */
+body.dense .card{margin:9px 0}
+body.dense .card .hd{padding:9px 12px}
+body.dense .card .hd .ic{font-size:1.25rem;width:28px}
+body.dense .card .hd .tt{font-size:1.02rem}
+body.dense .card .bd{padding:0 12px 10px}
+body.dense .opt{padding:7px 9px;gap:9px}
+body.dense .opt .box{width:20px;height:20px}
+body.dense .opt .txt span{font-size:.74rem}
+body.dense .note{padding:6px 9px;margin-top:5px;font-size:.82rem}
+body.dense .piatto{padding:8px 10px}
+body.dense .mealsep{margin:1px 0}
+body.dense .mealsep span{width:26px;height:26px;font-size:1.05rem}
+.mealcard .hd.clickable{cursor:pointer;user-select:none}
+.mealcard .chev{margin-left:8px;font-size:1.4rem;line-height:1;color:var(--muted);
+  transition:transform .18s ease;transform:rotate(90deg)}
+.mealcard .chev.open{transform:rotate(-90deg)}
+
+/* testo grassetto */
+body.bold{font-weight:600}
+body.bold .opt .txt span,body.bold .card .hd .tt small,body.bold .mrow .mv small,
+body.bold .fq .fqh .tgt,body.bold .foot{font-weight:600}
+
+/* tema scuro */
+body.dark{
+  --bg:#0f1613; --card:#182320; --ink:#e7efe9; --muted:#9fb2a8; --line:#2b3a34;
+  --green-l:#20302a; --gold-l:#2c2513; --soft:#1f2a25;
+  --shadow:0 2px 10px rgba(0,0,0,.45),0 1px 3px rgba(0,0,0,.55);
+}
+body.dark .note{background:#12201a}
+body.dark .note:focus{background:#16261f}
+body.dark .covered{background:#1a2420}
+body.dark .opt.disabled{background:#141d19}
+body.dark .waterctl button,body.dark .reset,body.dark .mnav{background:var(--card);color:var(--ink)}
+body.dark .waterctl button{color:var(--green)}
+body.dark .mrow .mtrack,body.dark .fq .fqbar{background:#26332d}
+body.dark .opt .lim.over{background:#3a1f1c;color:#f0a79f}
+body.dark .piatto .txt span{color:#d0aa54}
+body.dark .monthgrid .mc.l1{background:#1c2f26}
+body.dark .monthgrid .mc.l2{background:#254a37}
+body.dark .monthgrid .mc.l3{background:#2f6349}
+body.dark .monthgrid .mc.l4{background:#3c7d5b}

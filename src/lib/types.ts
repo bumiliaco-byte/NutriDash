@@ -46,8 +46,12 @@ export interface Slot {
   kind: SlotKind;
   label: string;
   detail?: string;
-  /** Grams used for macro computation (e.g. olio EVO). */
+  /** Grams used for macro computation (e.g. olio EVO, verdura). */
   grams?: number;
+  /** Optional link to a Food id for macro computation of a check slot. */
+  foodId?: string;
+  /** Macros per 100 g, embedded for self-contained macro computation. */
+  per100?: Macros;
   options?: SlotOption[];
 }
 
@@ -102,6 +106,15 @@ export interface Plan {
   glucidiAllenamento: SlotOption[];
   glucidiNonAllenamento: SlotOption[];
   proteine: SlotOption[];
+  /** Breakfast options (protein base + carb source). */
+  colazioneProt?: SlotOption[];
+  colazioneCarb?: SlotOption[];
+  /** Snack options. */
+  spuntinoPost?: SlotOption[];
+  spuntinoMattina?: SlotOption[];
+  spuntinoPomeriggio?: SlotOption[];
+  /** Vegetable serving (single, editable macros). */
+  verdura?: SlotOption;
   frequencies: FrequencyRule[];
   seasons: Season[];
   /** Serialised meal templates keyed by day type is derived in code. */

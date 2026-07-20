@@ -1,4 +1,4 @@
-import type { DayLog, Macros, Meal, Plan } from './types';
+import type { DayLog, Macros, Meal, Plan, Slot } from './types';
 import { macrosFor, optionMacros } from './data/foods';
 import { mealsFor } from './data/plan';
 
@@ -12,6 +12,25 @@ function add(a: Macros, b: Macros | null): Macros {
     protein: a.protein + b.protein,
     fat: a.fat + b.fat,
   };
+}
+
+/** Macros contributed by a check slot (e.g. verdura, olio EVO). */
+export function slotMacros(slot: Slot): Macros | null {
+  if (slot.id === 'olio') {
+    const grams = slot.grams ?? (slot.detail?.includes('40') ? 40 : 30);
+    return macrosFor('olio', grams);
+  }
+  if (!slot.grams) return null;
+  if (slot.per100) {
+    const k = slot.grams / 100;
+    return {
+      kcal: slot.per100.kcal * k,
+      carbs: slot.per100.carbs * k,
+      protein: slot.per100.protein * k,
+      fat: slot.per100.fat * k,
+    };
+  }
+  return macrosFor(slot.foodId, slot.grams);
 }
 
 /** Macros contributed by a single meal given the day's selections. */
@@ -28,10 +47,7 @@ export function mealMacros(meal: Meal, day: DayLog): Macros {
       if (opt) total = add(total, optionMacros(opt));
     } else if (slot.kind === 'check') {
       const on = day.chk[`${meal.id}.${slot.id}`];
-      if (on && slot.id === 'olio') {
-        const grams = slot.grams ?? (slot.detail?.includes('40') ? 40 : 30);
-        total = add(total, macrosFor('olio', grams));
-      }
+      if (on) total = add(total, slotMacros(slot));
     }
   }
   return total;
