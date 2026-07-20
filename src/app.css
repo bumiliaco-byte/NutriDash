@@ -186,8 +186,8 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 /* separatore "+" tra i pasti */
 .mealsep{display:flex;align-items:center;margin:4px 0}
 .mealsep::before,.mealsep::after{content:"";flex:1;height:1.5px;background:var(--line)}
-.mealsep span{margin:0 12px;width:32px;height:32px;border-radius:50%;background:var(--green-l);
-  color:var(--green-d);display:grid;place-items:center;font-size:1.25rem;font-weight:800;
+.mealsep span{margin:0 12px;width:32px;height:32px;border-radius:50%;background:var(--gold);
+  color:#fff;display:grid;place-items:center;font-size:1.25rem;font-weight:800;
   box-shadow:var(--shadow)}
 
 /* vista compatta */
