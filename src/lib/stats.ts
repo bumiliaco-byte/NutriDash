@@ -68,12 +68,16 @@ export function shoppingList(logs: DayLog[], plan: Plan): ShoppingItem[] {
     for (const meal of meals) {
       if (log.piatto?.[meal.id]) labelByKey[`${meal.id}.piatto`] = 'Piatto unico';
       for (const slot of meal.slots) {
-        if (slot.kind !== 'choice' || !slot.options) continue;
-        const k = `${meal.id}.${slot.id}`;
-        const sel = log.sel[k];
-        if (!sel) continue;
-        const opt = slot.options.find(o => o.id === sel);
-        if (opt) labelByKey[k] = opt.label;
+        if (slot.kind === 'choice' && slot.options) {
+          const k = `${meal.id}.${slot.id}`;
+          const sel = log.sel[k];
+          if (!sel) continue;
+          const opt = slot.options.find(o => o.id === sel);
+          if (opt) labelByKey[k] = opt.label;
+        } else if (slot.kind === 'check') {
+          const k = `${meal.id}.${slot.id}`;
+          if (log.chk[k]) labelByKey[k] = slot.label;
+        }
       }
     }
     for (const [k, raw] of Object.entries(notes)) {

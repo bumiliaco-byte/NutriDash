@@ -184,6 +184,15 @@
               {#if slotMac(slot)}<span class="macs"><b class="k">{slotKcal(slot)} kcal</b> · C {slotMac(slot)!.c} · P {slotMac(slot)!.p} · G {slotMac(slot)!.f}</span>{/if}
             </span>
           </button>
+          {#if isChk(slot)}
+            <input
+              class="note"
+              value={noteVal(key(slot))}
+              placeholder="📝 Marca, ricetta o tipo"
+              oninput={(e) => onNoteInput(key(slot), e)}
+              onchange={save}
+            />
+          {/if}
         {/if}
       </div>
     {/each}
