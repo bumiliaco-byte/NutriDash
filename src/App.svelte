@@ -139,7 +139,7 @@
     <div class="brand">
       <span class="logo">🥗</span>
       <div>
-        NutriDash <span class="ver">V2</span>
+        NutriDash <span class="ver">V3</span>
         <small>Piano di {profileName}</small>
       </div>
       <div class="grow"></div>

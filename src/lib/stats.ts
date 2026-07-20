@@ -148,3 +148,34 @@ export function weekSummary(logs: DayLog[], plan: Plan): WeekSummary {
     avgCompletion: compl / n,
   };
 }
+
+export interface DayBar {
+  date: string;
+  label: string; // Lun, Mar…
+  kcal: number;
+  macros: Macros;
+  hasData: boolean;
+}
+
+/** Per-day kcal/macro breakdown for the 7 given dates (Mon..Sun). */
+export function weeklyBreakdown(logs: DayLog[], plan: Plan, days: string[]): DayBar[] {
+  const WD = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+  const byDate = new Map(logs.map(l => [l.date, l]));
+  return days.map((date, i) => {
+    const log = byDate.get(date);
+    const hasData = !!log && (Object.keys(log.sel).length > 0 || Object.keys(log.chk).length > 0 || log.water > 0);
+    const m = log && hasData ? dayMacros(log, plan) : { kcal: 0, carbs: 0, protein: 0, fat: 0 };
+    return {
+      date,
+      label: WD[i],
+      kcal: Math.round(m.kcal),
+      macros: {
+        kcal: Math.round(m.kcal),
+        carbs: Math.round(m.carbs),
+        protein: Math.round(m.protein),
+        fat: Math.round(m.fat),
+      },
+      hasData: !!hasData,
+    };
+  });
+}
