@@ -98,6 +98,9 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .piatto.sel .box{background:var(--gold);border-color:var(--gold)}
 .piatto .txt b{font-size:.92rem;color:var(--gold)}
 .piatto .txt span{display:block;font-size:.76rem;color:#8a6a1e}
+.piatto .txt .macs{display:inline-block;margin-top:4px;font-size:.68rem;font-weight:700;
+  color:var(--muted);background:var(--soft,#f2f7f3);padding:1px 8px;border-radius:9px}
+.piatto .txt .macs .k{color:var(--gold);font-weight:800}
 
 .water .glasses{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .glass{font-size:1.5rem;cursor:pointer;filter:grayscale(1) opacity(.35);transition:.12s;line-height:1;background:none;border:none;padding:0}

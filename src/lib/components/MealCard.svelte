@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { DayLog, Meal, Plan, Slot, SlotOption } from '../types';
   import { optionMacros } from '../data/foods';
-  import { mealMacros, slotMacros } from '../compute';
+  import { mealMacros, slotMacros, PIATTO_UNICO } from '../compute';
 
   let { meal, day = $bindable(), dayType, plan, freqCounts, dense = false, save }: {
     meal: Meal; day: DayLog; dayType: string; plan: Plan; freqCounts: Record<string, number>; dense?: boolean; save: () => void;
@@ -110,6 +110,7 @@
         <span class="txt">
           <b>Piatto unico</b>
           <span>80–100g pasta/riso/orzo/farro + 30g legumi secchi + verdure</span>
+          <span class="macs"><b class="k">{Math.round(PIATTO_UNICO.kcal)} kcal</b> · C {Math.round(PIATTO_UNICO.carbs)} · P {Math.round(PIATTO_UNICO.protein)} · G {Math.round(PIATTO_UNICO.fat)}</span>
         </span>
       </button>
       {#if piattoOn}

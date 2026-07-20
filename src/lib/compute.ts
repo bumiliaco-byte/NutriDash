@@ -4,6 +4,12 @@ import { mealsFor } from './data/plan';
 
 const EMPTY: Macros = { kcal: 0, carbs: 0, protein: 0, fat: 0 };
 
+/**
+ * Estimated macros for a "piatto unico" (≈90g cereale + 30g legumi secchi + verdure),
+ * aligned to CREA values. Olio EVO is counted separately as its own check slot.
+ */
+export const PIATTO_UNICO: Macros = { kcal: 458, carbs: 88, protein: 20, fat: 3 };
+
 function add(a: Macros, b: Macros | null): Macros {
   if (!b) return a;
   return {
@@ -37,9 +43,10 @@ export function slotMacros(slot: Slot): Macros | null {
 export function mealMacros(meal: Meal, day: DayLog): Macros {
   let total = { ...EMPTY };
   const piatto = !!day.piatto?.[meal.id];
+  if (piatto) total = add(total, PIATTO_UNICO);
   for (const slot of meal.slots) {
-    // Piatto unico replaces gluc+prot with a combined dish; skip those slots.
-    if (piatto && (slot.id === 'gluc' || slot.id === 'prot')) continue;
+    // Piatto unico replaces gluc+prot+verdura with a combined dish; skip those slots.
+    if (piatto && (slot.id === 'gluc' || slot.id === 'prot' || slot.id === 'verdura')) continue;
 
     if (slot.kind === 'choice' && slot.options) {
       const chosen = day.sel[`${meal.id}.${slot.id}`];
