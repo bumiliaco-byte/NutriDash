@@ -184,7 +184,7 @@
               {#if slotMac(slot)}<span class="macs"><b class="k">{slotKcal(slot)} kcal</b> · C {slotMac(slot)!.c} · P {slotMac(slot)!.p} · G {slotMac(slot)!.f}</span>{/if}
             </span>
           </button>
-          {#if isChk(slot)}
+          {#if isChk(slot) && slot.id !== 'olio'}
             <input
               class="note"
               value={noteVal(key(slot))}

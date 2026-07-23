@@ -148,6 +148,9 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .fq.ok .cnt{color:var(--green)} .fq.ok .fqbar i{background:var(--green)}
 .fq.low .cnt{color:var(--amber)} .fq.low .fqbar i{background:var(--gold)}
 .fq.over .cnt{color:var(--red)} .fq.over .fqbar i{background:var(--red)}
+.fq .pips{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px}
+.fq .pips .pip{width:9px;height:9px;border-radius:50%;background:var(--green)}
+.fq .pips .pipmore{font-size:.72rem;font-weight:700;color:var(--muted)}
 
 /* statistiche */
 .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}

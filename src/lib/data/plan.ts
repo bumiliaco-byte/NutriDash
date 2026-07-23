@@ -54,8 +54,10 @@ export const FREQUENCIES: FrequencyRule[] = [
   { key: 'salumi', label: 'Salumi / affettati', max: 1 },
   { key: 'parmigiano', label: 'Parmigiano (spuntino)', max: 3 },
   { key: 'formFreschi', label: 'Formaggi freschi' },
+  { key: 'formStag', label: 'Formaggi stagionati' },
   { key: 'uova', label: 'Uova (pasto)' },
   { key: 'legumi', label: 'Legumi' },
+  { key: 'vegetale', label: 'Proteine vegetali (tofu/tempeh)' },
   { key: 'piattoUnico', label: 'Piatto unico' },
 ];
 
@@ -106,7 +108,7 @@ export const MEAL_IDEAS: string[] = [
 
 /** Build the default (V1) plan for a profile. */
 /** Bump when the plan's structural content changes so stored plans re-align once. */
-export const SEED_VERSION = 4;
+export const SEED_VERSION = 5;
 
 export function defaultPlan(profileId: string): Plan {
   return {

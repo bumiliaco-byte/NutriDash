@@ -57,6 +57,11 @@
           </div>
           {#if hasCap(f.key)}
             <div class="fqbar"><i style="width:{pct(f.key, n)}%"></i></div>
+          {:else if n > 0}
+            <div class="pips">
+              {#each Array.from({ length: Math.min(n, 10) }) as _, i (i)}<span class="pip"></span>{/each}
+              {#if n > 10}<span class="pipmore">+{n - 10}</span>{/if}
+            </div>
           {/if}
         </div>
       {/each}
