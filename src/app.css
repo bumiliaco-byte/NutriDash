@@ -35,7 +35,7 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .btn-oggi{background:#fff;color:var(--green-d);border:none;border-radius:10px;padding:6px 12px;
   font-weight:700;font-size:.78rem;cursor:pointer}
 
-.daytypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.daytypes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
 .dt{background:rgba(255,255,255,.14);border:2px solid transparent;color:#fff;border-radius:12px;
   padding:9px 6px;text-align:center;cursor:pointer;font-size:.8rem;font-weight:600}
 .dt .ic{font-size:1.15rem;display:block;margin-bottom:2px}
@@ -101,6 +101,10 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .piatto .txt .macs{display:inline-block;margin-top:4px;font-size:.68rem;font-weight:700;
   color:var(--muted);background:var(--soft,#f2f7f3);padding:1px 8px;border-radius:9px}
 .piatto .txt .macs .k{color:var(--gold);font-weight:800}
+.piatto.disabled{opacity:.5;cursor:not-allowed}
+.piatto .txt .lim{display:inline-block;background:var(--amber-l);color:var(--amber);font-size:.64rem;
+  font-weight:700;padding:1px 7px;border-radius:9px;margin-top:4px}
+.piatto .txt .lim.over{background:#fdecec;color:#c0392b}
 
 .water .glasses{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .glass{font-size:1.5rem;cursor:pointer;filter:grayscale(1) opacity(.35);transition:.12s;line-height:1;background:none;border:none;padding:0}

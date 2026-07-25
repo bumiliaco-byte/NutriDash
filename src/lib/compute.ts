@@ -41,12 +41,14 @@ export function slotMacros(slot: Slot): Macros | null {
 
 /** Macros contributed by a single meal given the day's selections. */
 export function mealMacros(meal: Meal, day: DayLog): Macros {
+  // A free meal is untracked: it doesn't contribute to the day's macro totals.
+  if (day.freeMeal === meal.id) return { ...EMPTY };
   let total = { ...EMPTY };
   const piatto = !!day.piatto?.[meal.id];
   if (piatto) total = add(total, PIATTO_UNICO);
   for (const slot of meal.slots) {
-    // Piatto unico replaces gluc+prot+verdura with a combined dish; skip those slots.
-    if (piatto && (slot.id === 'gluc' || slot.id === 'prot' || slot.id === 'verdura')) continue;
+    // Piatto unico replaces gluc+prot with a combined dish; verdura stays as a side.
+    if (piatto && (slot.id === 'gluc' || slot.id === 'prot')) continue;
 
     if (slot.kind === 'choice' && slot.options) {
       const chosen = day.sel[`${meal.id}.${slot.id}`];

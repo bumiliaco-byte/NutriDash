@@ -109,6 +109,8 @@ export interface Plan {
   /** Breakfast options (protein base + carb source). */
   colazioneProt?: SlotOption[];
   colazioneCarb?: SlotOption[];
+  /** Breakfast sweet/fruit add-on (marmellata / miele / frutto). */
+  colazioneDolce?: SlotOption[];
   /** Snack options. */
   spuntinoPost?: SlotOption[];
   spuntinoMattina?: SlotOption[];

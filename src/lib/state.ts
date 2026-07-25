@@ -14,9 +14,9 @@ export function todayStr(): string {
   return fmt(new Date());
 }
 
-/** Default day type: Saturday = pasto libero, otherwise non-allenamento. */
-export function defaultType(dateStr: string): DayType {
-  return parseDate(dateStr).getDay() === 6 ? 'pastolibero' : 'nonallenamento';
+/** Default day type: rest day (pasto libero is now a per-meal toggle, not a day type). */
+export function defaultType(_dateStr: string): DayType {
+  return 'nonallenamento';
 }
 
 export const currentDate = writable<string>(todayStr());

@@ -39,8 +39,14 @@
   }
 
   const freeSel = $derived(day.freeMeal === meal.id);
-  const freeLocked = $derived(!!day.freeMeal && day.freeMeal !== meal.id);
+  const freeSlot = $derived(meal.slots.find((s) => s.kind === 'freeToggle'));
+  const freeRule = $derived(plan.frequencies.find((x) => x.key === 'pastolibero'));
+  const freeCapReached = $derived(freeRule?.max != null && (freqCounts['pastolibero'] ?? 0) >= freeRule.max);
+  // Locked unless it's the one already chosen here: another meal is free today,
+  // or the weekly free-meal cap is already used up.
+  const freeLocked = $derived(!freeSel && (!!day.freeMeal || freeCapReached));
   function toggleFree() {
+    if (freeLocked) return;
     day.freeMeal = day.freeMeal === meal.id ? '' : meal.id;
     save();
   }
@@ -66,7 +72,8 @@
   }
 
   function covered(slot: Slot) {
-    return piattoOn && (slot.id === 'gluc' || slot.id === 'prot' || slot.id === 'verdura');
+    if (freeSel && slot.kind !== 'freeToggle') return true; // free meal inhibits the rest
+    return piattoOn && (slot.id === 'gluc' || slot.id === 'prot');
   }
 
   /** True when the option's weekly frequency cap is already reached. */
@@ -104,47 +111,53 @@
   </div>
   {#if open}
   <div class="bd">
-    {#if meal.hasPiatto}
-      <button class="piatto" class:sel={piattoOn} onclick={togglePiatto}>
-        <span class="box">{piattoOn ? '✓' : ''}</span>
+    {#if freeSlot}
+      <button
+        class="piatto"
+        class:sel={freeSel}
+        class:disabled={freeLocked}
+        disabled={freeLocked}
+        onclick={toggleFree}
+      >
+        <span class="box">{freeSel ? '✓' : ''}</span>
         <span class="txt">
-          <b>Piatto unico</b>
-          <span>80–100g pasta/riso/orzo/farro + 30g legumi secchi + verdure</span>
-          <span class="macs"><b class="k">{Math.round(PIATTO_UNICO.kcal)} kcal</b> · C {Math.round(PIATTO_UNICO.carbs)} · P {Math.round(PIATTO_UNICO.protein)} · G {Math.round(PIATTO_UNICO.fat)}</span>
+          <b>🎉 {freeSlot.label}</b>
+          {#if freeSlot.detail}<span>{freeSlot.detail}</span>{/if}
+          {#if freeLocked}<span class="lim over">{day.freeMeal ? "già libero nell'altro pasto" : 'max settimanale raggiunto'}</span>{/if}
         </span>
       </button>
-      {#if piattoOn}
-        <input
-          class="note"
-          value={noteVal(`${meal.id}.piatto`)}
-          placeholder="📝 Marca, ricetta o tipo"
-          oninput={(e) => onNoteInput(`${meal.id}.piatto`, e)}
-          onchange={save}
-        />
-      {/if}
+    {/if}
+
+    {#if meal.hasPiatto && !freeSel}
+      <div class="slot">
+        <div class="lab">Piatto unico</div>
+        <button class="opt check" class:sel={piattoOn} onclick={togglePiatto}>
+          <span class="box">{piattoOn ? '✓' : ''}</span>
+          <span class="txt">
+            <b>Piatto unico</b>
+            <span>80–100g pasta/riso/orzo/farro + 30g legumi secchi · verdura come contorno</span>
+            <span class="macs"><b class="k">{Math.round(PIATTO_UNICO.kcal)} kcal</b> · C {Math.round(PIATTO_UNICO.carbs)} · P {Math.round(PIATTO_UNICO.protein)} · G {Math.round(PIATTO_UNICO.fat)}</span>
+          </span>
+        </button>
+        {#if piattoOn}
+          <input
+            class="note"
+            value={noteVal(`${meal.id}.piatto`)}
+            placeholder="📝 Marca, ricetta o tipo"
+            oninput={(e) => onNoteInput(`${meal.id}.piatto`, e)}
+            onchange={save}
+          />
+        {/if}
+      </div>
     {/if}
 
     {#each meal.slots as slot}
+      {#if slot.kind !== 'freeToggle'}
       <div class="slot">
         <div class="lab">{slot.label}</div>
 
-        {#if slot.kind === 'freeToggle'}
-          <button
-            class="opt check free"
-            class:sel={freeSel}
-            class:disabled={freeLocked}
-            disabled={freeLocked}
-            onclick={toggleFree}
-          >
-            <span class="box">{freeSel ? '✓' : ''}</span>
-            <span class="txt">
-              <b>🎉 {slot.label}</b>
-              {#if slot.detail}<span>{slot.detail}</span>{/if}
-              {#if freeLocked}<span class="lim over">già libero nell'altro pasto</span>{/if}
-            </span>
-          </button>
-        {:else if covered(slot)}
-          <div class="covered">Coperto dal <b>piatto unico</b></div>
+        {#if covered(slot)}
+          <div class="covered">Coperto dal <b>{freeSel ? 'pasto libero' : 'piatto unico'}</b></div>
         {:else if slot.kind === 'choice' && slot.options}
           <div class="opts">
             {#each slot.options as opt}
@@ -195,6 +208,7 @@
           {/if}
         {/if}
       </div>
+      {/if}
     {/each}
   </div>
   {/if}

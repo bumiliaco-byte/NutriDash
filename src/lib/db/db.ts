@@ -63,6 +63,7 @@ export async function getActivePlan(profileId: string): Promise<Plan> {
         proteine: def.proteine,
         colazioneProt: def.colazioneProt,
         colazioneCarb: def.colazioneCarb,
+        colazioneDolce: def.colazioneDolce,
         spuntinoPost: def.spuntinoPost,
         spuntinoMattina: def.spuntinoMattina,
         spuntinoPomeriggio: def.spuntinoPomeriggio,

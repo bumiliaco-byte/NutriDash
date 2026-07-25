@@ -22,7 +22,6 @@
   const DAY_TYPES: { id: DayType; label: string; ic: string }[] = [
     { id: 'allenamento', label: 'Allenamento', ic: '🏋️' },
     { id: 'nonallenamento', label: 'Riposo', ic: '🛋️' },
-    { id: 'pastolibero', label: 'Pasto libero', ic: '🎉' },
   ];
 
   let ready = $state(false);
@@ -139,7 +138,7 @@
     <div class="brand">
       <span class="logo">🥗</span>
       <div>
-        NutriDash <span class="ver">V4</span>
+        NutriDash <span class="ver">V5</span>
         <small>Piano di {profileName}</small>
       </div>
       <div class="grow"></div>

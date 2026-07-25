@@ -59,6 +59,7 @@ export const FREQUENCIES: FrequencyRule[] = [
   { key: 'legumi', label: 'Legumi' },
   { key: 'vegetale', label: 'Proteine vegetali (tofu/tempeh)' },
   { key: 'piattoUnico', label: 'Piatto unico' },
+  { key: 'pastolibero', label: 'Pasto libero', max: 1 },
 ];
 
 export const SEASONS: Season[] = [
@@ -108,7 +109,7 @@ export const MEAL_IDEAS: string[] = [
 
 /** Build the default (V1) plan for a profile. */
 /** Bump when the plan's structural content changes so stored plans re-align once. */
-export const SEED_VERSION = 5;
+export const SEED_VERSION = 7;
 
 export function defaultPlan(profileId: string): Plan {
   return {
@@ -125,6 +126,7 @@ export function defaultPlan(profileId: string): Plan {
     proteine: withMacros(PROTEINE),
     colazioneProt: withMacros(COLAZIONE_OPTS),
     colazioneCarb: withMacros(COLAZIONE_CARBS),
+    colazioneDolce: withMacros(COLAZIONE_DOLCE),
     spuntinoPost: withMacros(SP_POST_OPTS),
     spuntinoMattina: withMacros(SP_MATT_OPTS),
     spuntinoPomeriggio: withMacros(SP_POM_OPTS),
@@ -146,6 +148,11 @@ const COLAZIONE_CARBS: SlotOption[] = [
   { id: 'pane', label: 'Pane bianco o integrale', detail: '50g', foodId: 'pane', grams: 50 },
   { id: 'cereali', label: 'Cereali', detail: '40g · All Bran / fiocchi di riso soffiato / avena / muesli', foodId: 'cereali', grams: 40 },
   { id: 'fette', label: 'Fette biscottate', detail: '4–5 fette', foodId: 'fette', grams: 35 },
+];
+const COLAZIONE_DOLCE: SlotOption[] = [
+  { id: 'marmellata', label: 'Marmellata', detail: '20g', foodId: 'marmellata', grams: 20 },
+  { id: 'miele', label: 'Miele', detail: '1 cucchiaino (~8g)', foodId: 'miele', grams: 8 },
+  { id: 'frutto', label: 'Frutto', detail: 'frutti di bosco, lamponi o mezza banana', foodId: 'fruttoDolce', grams: 80 },
 ];
 
 // Spuntini composti: per100 = totale stimato sommando i componenti (valori CREA)
@@ -180,6 +187,7 @@ function colazione(plan: Plan): Meal {
     slots: [
       { id: 'prot', kind: 'choice', label: 'Base proteica', options: plan.colazioneProt ?? COLAZIONE_OPTS },
       { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: plan.colazioneCarb ?? COLAZIONE_CARBS },
+      { id: 'dolce', kind: 'choice', label: 'Marmellata / miele / frutto', options: plan.colazioneDolce ?? COLAZIONE_DOLCE },
     ],
   };
 }
@@ -217,6 +225,7 @@ function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: D
     id, name, icon, hasPiatto: true,
     waterNote: '1 bicchiere prima del pasto e 1 durante',
     slots: [
+      { id: 'libero', kind: 'freeToggle', label: 'Pasto libero', detail: 'goditelo senza sensi di colpa · max 1 / sett' },
       verduraSlot(plan),
       { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: gluc },
       { id: 'prot', kind: 'choice', label: 'Fonte proteica', options: plan.proteine },
@@ -227,34 +236,12 @@ function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: D
 
 type DayTypeLite = 'allenamento' | 'nonallenamento' | 'pastolibero';
 
-function freeMeal(id: string, name: string, icon: string, plan: Plan, day: Partial<DayLog> | undefined): Meal {
-  const isFree = day?.freeMeal === id;
-  if (isFree) {
-    return {
-      id, name, icon,
-      waterNote: '1 bicchiere prima del pasto e 1 durante',
-      slots: [{ id: 'libero', kind: 'freeToggle', label: 'Pasto libero', detail: 'goditelo senza sensi di colpa' }],
-    };
-  }
-  return {
-    id, name, icon, hasPiatto: false,
-    waterNote: '1 bicchiere prima del pasto e 1 durante',
-    slots: [
-      { id: 'libero', kind: 'freeToggle', label: 'Pasto libero', detail: 'oppure componi il pasto strutturato qui sotto' },
-      verduraSlot(plan),
-      { id: 'prot', kind: 'choice', label: 'Fonte proteica', options: plan.proteine },
-      { id: 'olio', kind: 'check', label: 'Olio EVO', detail: '3 cucchiai (30g)', grams: 30, foodId: 'olio' },
-    ],
-  };
-}
-
 /** Return the meals for a given day type, using the active plan. */
-export function mealsFor(dt: DayTypeLite, plan: Plan, day?: Partial<DayLog>): Meal[] {
+export function mealsFor(dt: DayTypeLite, plan: Plan, _day?: Partial<DayLog>): Meal[] {
   if (dt === 'allenamento') {
     return [colazione(plan), spPost(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
   }
-  if (dt === 'nonallenamento') {
-    return [colazione(plan), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'nonallenamento'), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), mainMeal('cena', 'Cena', '🌙', plan, 'nonallenamento')];
-  }
-  return [colazione(plan), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), freeMeal('pranzo', 'Pranzo', '🍽️', plan, day), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), freeMeal('cena', 'Cena', '🌙', plan, day)];
+  // 'nonallenamento' (and legacy 'pastolibero' days) share the same structure;
+  // the free meal is now a toggle inside pranzo/cena rather than a day type.
+  return [colazione(plan), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'nonallenamento'), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), mainMeal('cena', 'Cena', '🌙', plan, 'nonallenamento')];
 }

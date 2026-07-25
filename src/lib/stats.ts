@@ -31,6 +31,7 @@ export function tallyFrequencies(logs: DayLog[], plan: Plan): Record<string, num
   for (const f of plan.frequencies) counts[f.key] = 0;
 
   for (const log of logs) {
+    if (log.freeMeal && 'pastolibero' in counts) counts.pastolibero++;
     const meals = mealsFor(log.dayType, plan, log);
     for (const meal of meals) {
       if (log.piatto?.[meal.id]) {
@@ -101,10 +102,11 @@ export function dayCompletion(log: DayLog, plan: Plan): number {
   let total = 0;
   let filled = 0;
   for (const meal of meals) {
+    if (log.freeMeal === meal.id) continue; // free meal: not evaluated for completion
     const piatto = !!log.piatto?.[meal.id];
     for (const slot of meal.slots) {
       if (slot.kind === 'freeToggle') continue; // not a fillable slot
-      if (piatto && (slot.id === 'gluc' || slot.id === 'prot' || slot.id === 'verdura')) {
+      if (piatto && (slot.id === 'gluc' || slot.id === 'prot')) {
         total++; filled++; // covered by piatto
         continue;
       }
