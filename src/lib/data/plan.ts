@@ -220,7 +220,6 @@ function verduraSlot(plan: Plan): Slot {
 
 function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: DayTypeLite): Meal {
   const gluc = dayType === 'allenamento' ? plan.glucidiAllenamento : plan.glucidiNonAllenamento;
-  const olioGrams = dayType === 'allenamento' ? 40 : 30;
   return {
     id, name, icon, hasPiatto: true,
     waterNote: '1 bicchiere prima del pasto e 1 durante',
@@ -229,7 +228,6 @@ function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: D
       verduraSlot(plan),
       { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: gluc },
       { id: 'prot', kind: 'choice', label: 'Fonte proteica', options: plan.proteine },
-      { id: 'olio', kind: 'check', label: 'Olio EVO', detail: `${olioGrams === 40 ? '4' : '3'} cucchiai (${olioGrams}g)`, grams: olioGrams, foodId: 'olio' },
     ],
   };
 }
