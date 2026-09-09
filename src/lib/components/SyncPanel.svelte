@@ -26,15 +26,19 @@
   });
   onDestroy(() => unsub());
 
+  async function doSync() {
+    const res = await sync();
+    if (res) {
+      msg = `Sincronizzato: ${res.pulled} scaricati, ${res.pushed} inviati`;
+      onSynced?.();
+    }
+  }
+
   async function runSync() {
     if (busy) return;
     busy = true; err = ''; msg = '';
     try {
-      const res = await sync();
-      if (res) {
-        msg = `Sincronizzato: ${res.pulled} scaricati, ${res.pushed} inviati`;
-        onSynced?.();
-      }
+      await doSync();
     } catch (e) {
       err = 'Sync non riuscita: ' + (e instanceof Error ? e.message : 'errore');
     } finally {
@@ -52,6 +56,9 @@
         await signIn(email.trim(), password);
       }
       password = '';
+      // Sync immediately after the user action (don't wait for the auth-change event).
+      account = await currentEmail();
+      if (account) await doSync();
     } catch (e) {
       err = messageFor(e);
     } finally {
