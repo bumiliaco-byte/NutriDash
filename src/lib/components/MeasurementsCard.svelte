@@ -3,7 +3,7 @@
   import type { Measurement } from '../types';
   import { todayStr } from '../state';
 
-  let { profileId, dataVersion = 0 }: { profileId: string; dataVersion?: number } = $props();
+  let { profileId, dataVersion = 0, onChanged }: { profileId: string; dataVersion?: number; onChanged?: () => void } = $props();
 
   let items = $state<Measurement[]>([]);
   let heightM = $state<number | undefined>(undefined);
@@ -51,12 +51,14 @@
     await db.measurements.put(JSON.parse(JSON.stringify(m)));
     fWeight = null; fVita = null; fFianchi = null; fDate = todayStr();
     await load();
+    onChanged?.();
   }
 
   async function remove(id: string) {
     if (!confirm('Eliminare questa visita?')) return;
     await deleteMeasurement(id);
     await load();
+    onChanged?.();
   }
 
   // items are newest-first: delta vs the next (older) weighed visit.

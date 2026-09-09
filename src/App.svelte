@@ -4,7 +4,7 @@
   import { ensureBootstrap, getActivePlan, pickProfileId, deleteDayLog, db } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
   import { mealsFor } from './lib/data/plan';
-  import { syncEnabled } from './lib/sync/supabase';
+  import { syncEnabled, sync } from './lib/sync/supabase';
   import { downloadBackup, downloadCsv, importBackup } from './lib/backup';
   import { weekDays, logsInRange, tallyFrequencies } from './lib/stats';
   import MacroSummary from './lib/components/MacroSummary.svelte';
@@ -96,9 +96,23 @@
     dataVersion++;
   }
 
+  // Debounced automatic cloud sync after local changes (no-op if not signed in).
+  let autoSyncTimer: ReturnType<typeof setTimeout> | undefined;
+  function scheduleAutoSync() {
+    if (!syncEnabled()) return;
+    clearTimeout(autoSyncTimer);
+    autoSyncTimer = setTimeout(async () => {
+      try {
+        const r = await sync();
+        if (r && r.pulled > 0) await onSynced(); // refresh only when remote brought changes
+      } catch { /* offline or transient: will retry on next change/open */ }
+    }, 1500);
+  }
+
   async function save() {
     if (day) await saveDay(day);
     dataVersion++;
+    scheduleAutoSync();
   }
 
   function shiftDay(delta: number) {
@@ -120,6 +134,7 @@
     await deleteDayLog(day.id);
     await reloadDay();
     dataVersion++;
+    scheduleAutoSync();
   }
 
   async function onImport(e: Event) {
@@ -185,6 +200,9 @@
     await reloadDay();
     ready = true;
     await scrollToCurrentMeal();
+    // Auto-sync when returning to the app (foreground / tab focus).
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleAutoSync(); });
+    window.addEventListener('focus', scheduleAutoSync);
   });
 </script>
 
@@ -249,7 +267,7 @@
     <WeekStats profileId={pid} {dateStr} {plan} {dataVersion} />
     <ShoppingList profileId={pid} {dateStr} {plan} {dataVersion} />
     <MonthHistory profileId={pid} {dateStr} {plan} {dataVersion} onPick={(d) => { dateStr = d; reloadDay(); }} />
-    <MeasurementsCard profileId={pid} {dataVersion} />
+    <MeasurementsCard profileId={pid} {dataVersion} onChanged={scheduleAutoSync} />
     <SyncPanel {onSynced} />
 
     <PlanEditor profileId={pid} {plan} onChanged={onPlanChanged} />
