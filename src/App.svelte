@@ -5,7 +5,7 @@
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
   import { mealsFor } from './lib/data/plan';
   import { syncEnabled, sync } from './lib/sync/supabase';
-  import { downloadBackup, importBackup } from './lib/backup';
+  import { downloadBackup, downloadCsv, importBackup } from './lib/backup';
   import { weekDays, logsInRange, tallyFrequencies } from './lib/stats';
   import MacroSummary from './lib/components/MacroSummary.svelte';
   import DayProgress from './lib/components/DayProgress.svelte';
@@ -15,6 +15,7 @@
   import WeekStats from './lib/components/WeekStats.svelte';
   import MonthHistory from './lib/components/MonthHistory.svelte';
   import ShoppingList from './lib/components/ShoppingList.svelte';
+  import MeasurementsCard from './lib/components/MeasurementsCard.svelte';
   import PlanEditor from './lib/components/PlanEditor.svelte';
 
   const DOW = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -42,6 +43,7 @@
     b.classList.toggle('dense', dense);
     b.classList.toggle('dark', dark);
     b.classList.toggle('bold', bold);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0f1613' : '#2e7d4f');
     localStorage.setItem('nd_dense', dense ? '1' : '0');
     localStorage.setItem('nd_dark', dark ? '1' : '0');
     localStorage.setItem('nd_bold', bold ? '1' : '0');
@@ -140,7 +142,24 @@
     await tick();
     const mealId = currentMealId(new Date().getHours(), meals);
     if (!mealId) return;
-    requestAnimationFrame(() => document.getElementById(`meal-${mealId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const behavior: ScrollBehavior = reduce ? 'auto' : 'smooth';
+    requestAnimationFrame(() => document.getElementById(`meal-${mealId}`)?.scrollIntoView({ behavior, block: 'start' }));
+  }
+
+  // Horizontal swipe on the content area moves to the previous/next day.
+  let touchX = 0;
+  let touchY = 0;
+  function onTouchStart(e: TouchEvent) {
+    const t = e.changedTouches[0];
+    touchX = t.clientX;
+    touchY = t.clientY;
+  }
+  function onTouchEnd(e: TouchEvent) {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchX;
+    const dy = t.clientY - touchY;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) shiftDay(dx < 0 ? 1 : -1);
   }
 
   onMount(async () => {
@@ -201,7 +220,7 @@
   </div>
 </header>
 
-<div class="wrap">
+<div class="wrap" role="group" ontouchstart={onTouchStart} ontouchend={onTouchEnd}>
   {#if ready && day && plan}
     <MacroSummary {day} {plan} />
     <DayProgress {day} {plan} />
@@ -216,12 +235,14 @@
     <WeekStats profileId={pid} {dateStr} {plan} {dataVersion} />
     <ShoppingList profileId={pid} {dateStr} {plan} {dataVersion} />
     <MonthHistory profileId={pid} {dateStr} {plan} {dataVersion} onPick={(d) => { dateStr = d; reloadDay(); }} />
+    <MeasurementsCard profileId={pid} {dataVersion} />
 
     <PlanEditor profileId={pid} {plan} onChanged={onPlanChanged} />
 
     <div class="toolbar">
       <button class="tbtn" onclick={() => downloadBackup()}><span class="ic">⬇️</span> Esporta backup</button>
       <button class="tbtn" onclick={() => fileInput?.click()}><span class="ic">⬆️</span> Importa backup</button>
+      <button class="tbtn" onclick={() => plan && downloadCsv(pid, plan)}><span class="ic">🧾</span> Esporta CSV</button>
     </div>
     <input type="file" accept="application/json" bind:this={fileInput} onchange={onImport} style="display:none" />
 

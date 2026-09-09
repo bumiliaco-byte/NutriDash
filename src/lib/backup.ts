@@ -1,5 +1,7 @@
 import { db } from './db/db';
 import type { DayLog, Measurement, Plan, Profile } from './types';
+import { dayMacros } from './compute';
+import { dayCompletion } from './stats';
 
 interface Backup {
   app: 'nutridash';
@@ -58,4 +60,37 @@ export async function importBackup(json: string): Promise<{ profiles: number; pl
     plans: data.plans?.length ?? 0,
     dayLogs: data.dayLogs?.length ?? 0,
   };
+}
+
+/** Export the daily diary as a CSV file (macros/water/completion per logged day). */
+export async function downloadCsv(profileId: string, plan: Plan): Promise<void> {
+  const logs = (await db.dayLogs.where('profileId').equals(profileId).toArray())
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const rows: string[][] = [
+    ['data', 'tipo', 'kcal', 'carboidrati_g', 'proteine_g', 'grassi_g', 'acqua_l', 'completamento_%', 'pasto_libero'],
+  ];
+  for (const l of logs) {
+    const m = dayMacros(l, plan);
+    rows.push([
+      l.date,
+      l.dayType,
+      String(Math.round(m.kcal)),
+      String(Math.round(m.carbs)),
+      String(Math.round(m.protein)),
+      String(Math.round(m.fat)),
+      (l.water * 0.25).toFixed(2),
+      String(Math.round(dayCompletion(l, plan) * 100)),
+      l.freeMeal ?? '',
+    ]);
+  }
+  const csv = rows.map((r) => r.join(';')).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `nutridash-diario-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
