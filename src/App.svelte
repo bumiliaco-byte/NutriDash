@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import type { DayLog, DayType, Plan } from './lib/types';
   import { ensureBootstrap, getActivePlan, db } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
@@ -122,6 +122,27 @@
     }
   }
 
+  function currentMealId(hour: number, availableMeals: { id: string }[]): string {
+    const preferredId = hour >= 19 || hour < 5
+      ? 'cena'
+      : hour >= 16
+        ? 'spuntinoPomeriggio'
+        : hour >= 12
+          ? 'pranzo'
+          : hour >= 10
+            ? (availableMeals.some((meal) => meal.id === 'spuntinoMattina') ? 'spuntinoMattina' : 'postworkout')
+            : 'colazione';
+    return availableMeals.some((meal) => meal.id === preferredId) ? preferredId : availableMeals[0]?.id;
+  }
+
+  async function scrollToCurrentMeal() {
+    if (!isToday) return;
+    await tick();
+    const mealId = currentMealId(new Date().getHours(), meals);
+    if (!mealId) return;
+    requestAnimationFrame(() => document.getElementById(`meal-${mealId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+
   onMount(async () => {
     pid = await ensureBootstrap();
     plan = await getActivePlan(pid);
@@ -129,6 +150,7 @@
     profileName = p?.name ?? '';
     await reloadDay();
     ready = true;
+    await scrollToCurrentMeal();
     if (syncEnabled()) sync().catch(() => {});
   });
 </script>

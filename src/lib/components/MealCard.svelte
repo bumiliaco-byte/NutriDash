@@ -96,7 +96,7 @@
   }
 </script>
 
-<div class="card mealcard">
+<div class="card mealcard" id={`meal-${meal.id}`}>
   <div class="hd" class:clickable={dense} role="button" tabindex="0"
     onclick={() => { if (dense) open = !open; }}
     onkeydown={(e) => { if (dense && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open = !open; } }}>
