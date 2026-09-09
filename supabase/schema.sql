@@ -32,10 +32,19 @@ create table if not exists public.measurements (
   data jsonb not null
 );
 
+-- Tombstone: registra le cancellazioni per propagarle tra dispositivi.
+create table if not exists public.tombstones (
+  id text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  table_name text not null,
+  deleted_at timestamptz not null default now()
+);
+
 alter table public.profiles enable row level security;
 alter table public.plans enable row level security;
 alter table public.day_logs enable row level security;
 alter table public.measurements enable row level security;
+alter table public.tombstones enable row level security;
 
 -- Policy idempotenti: ogni utente accede solo alle proprie righe.
 do $$ begin
@@ -55,5 +64,10 @@ exception when duplicate_object then null; end $$;
 
 do $$ begin
   create policy "own measurements" on public.measurements
+    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create policy "own tombstones" on public.tombstones
     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 exception when duplicate_object then null; end $$;

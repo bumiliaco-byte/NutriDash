@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { DayLog, Measurement, Plan, Profile } from '../types';
+import type { DayLog, Measurement, Plan, Profile, Tombstone } from '../types';
 import { defaultPlan, SEED_VERSION } from '../data/plan';
 
 /** IndexedDB database for NutriDash (local-first store). */
@@ -8,6 +8,7 @@ export class NutriDB extends Dexie {
   plans!: Table<Plan, string>;
   dayLogs!: Table<DayLog, string>;
   measurements!: Table<Measurement, string>;
+  tombstones!: Table<Tombstone, string>;
 
   constructor() {
     super('nutridash');
@@ -17,10 +18,30 @@ export class NutriDB extends Dexie {
       dayLogs: 'id, profileId, date, [profileId+date]',
       measurements: 'id, profileId, date, [profileId+date]',
     });
+    this.version(2).stores({
+      tombstones: 'id, table',
+    });
   }
 }
 
 export const db = new NutriDB();
+
+/** Record a deletion tombstone (so it propagates on next cloud sync). */
+async function tombstone(table: string, recordId: string): Promise<void> {
+  await db.tombstones.put({ id: `${table}:${recordId}`, table, recordId, deletedAt: new Date().toISOString() });
+}
+
+/** Delete a day log locally and mark a tombstone for cross-device sync. */
+export async function deleteDayLog(id: string): Promise<void> {
+  await tombstone('day_logs', id);
+  await db.dayLogs.delete(id);
+}
+
+/** Delete a measurement locally and mark a tombstone for cross-device sync. */
+export async function deleteMeasurement(id: string): Promise<void> {
+  await tombstone('measurements', id);
+  await db.measurements.delete(id);
+}
 
 /** Ensure at least one profile + active plan exist. Returns the profile id. */
 export async function ensureBootstrap(): Promise<string> {

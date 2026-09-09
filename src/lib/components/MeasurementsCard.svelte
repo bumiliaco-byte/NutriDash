@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { db } from '../db/db';
+  import { db, deleteMeasurement } from '../db/db';
   import type { Measurement } from '../types';
   import { todayStr } from '../state';
 
@@ -55,7 +55,7 @@
 
   async function remove(id: string) {
     if (!confirm('Eliminare questa visita?')) return;
-    await db.measurements.delete(id);
+    await deleteMeasurement(id);
     await load();
   }
 

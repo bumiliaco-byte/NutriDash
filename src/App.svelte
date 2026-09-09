@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import type { DayLog, DayType, Plan } from './lib/types';
-  import { ensureBootstrap, getActivePlan, pickProfileId, db } from './lib/db/db';
+  import { ensureBootstrap, getActivePlan, pickProfileId, deleteDayLog, db } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
   import { mealsFor } from './lib/data/plan';
   import { syncEnabled } from './lib/sync/supabase';
@@ -117,7 +117,7 @@
   async function resetDay() {
     if (!day) return;
     if (!confirm('Azzerare questa giornata?')) return;
-    await db.dayLogs.delete(day.id);
+    await deleteDayLog(day.id);
     await reloadDay();
     dataVersion++;
   }

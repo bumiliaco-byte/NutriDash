@@ -59,10 +59,66 @@ const STORES = [
   { table: 'measurements', local: () => db.measurements },
 ] as const;
 
+/** Map a remote table name to its local Dexie table (for applying tombstones). */
+const LOCAL_BY_TABLE: Record<string, () => Table<{ id: string; updatedAt?: string }, string>> = {
+  profiles: () => db.profiles,
+  plans: () => db.plans,
+  day_logs: () => db.dayLogs,
+  measurements: () => db.measurements,
+};
+
 type Row = { id: string; updated_at: string | null; data: { updatedAt?: string } };
 
 function ts(rec: { updatedAt?: string } | undefined | null): number {
   return rec?.updatedAt ? new Date(rec.updatedAt).getTime() : 0;
+}
+
+/** True when the error means the `tombstones` table hasn't been created yet. */
+function isMissingTombstones(err: { code?: string; message?: string } | null): boolean {
+  if (!err) return false;
+  const m = (err.message || '').toLowerCase();
+  return err.code === 'PGRST205' || err.code === '42P01' ||
+    (m.includes('tombstones') && (m.includes('schema cache') || m.includes('does not exist') || m.includes('find the table')));
+}
+
+/** Pull remote deletions, apply them locally, and resolve resurrections (record newer than delete wins). */
+async function pullTombstones(sb: SupabaseClient, userId: string): Promise<number> {
+  const { data, error } = await sb.from('tombstones').select('id,table_name,deleted_at').eq('user_id', userId);
+  if (error) {
+    if (isMissingTombstones(error)) return 0; // table not created yet: skip gracefully
+    throw error;
+  }
+  let applied = 0;
+  for (const row of (data ?? []) as { id: string; table_name: string; deleted_at: string }[]) {
+    const { id, table_name: table, deleted_at: deletedAt } = row;
+    const recordId = id.slice(table.length + 1);
+    const localTomb = await db.tombstones.get(id);
+    if (!localTomb || new Date(deletedAt) > new Date(localTomb.deletedAt)) {
+      await db.tombstones.put({ id, table, recordId, deletedAt });
+    }
+    const local = LOCAL_BY_TABLE[table]?.();
+    if (!local) continue;
+    const rec = await local.get(recordId);
+    if (rec) {
+      if (ts(rec) > new Date(deletedAt).getTime()) {
+        // Re-created/edited after the deletion: the record wins, drop the tombstone.
+        await db.tombstones.delete(id);
+        await sb.from('tombstones').delete().eq('id', id);
+      } else {
+        await local.delete(recordId);
+        applied++;
+      }
+    }
+  }
+  return applied;
+}
+
+async function pushTombstones(sb: SupabaseClient, userId: string): Promise<void> {
+  const all = await db.tombstones.toArray();
+  if (!all.length) return;
+  const rows = all.map((t) => ({ id: t.id, user_id: userId, table_name: t.table, deleted_at: t.deletedAt }));
+  const { error } = await sb.from('tombstones').upsert(rows, { onConflict: 'id' });
+  if (error && !isMissingTombstones(error)) throw error;
 }
 
 async function pullStore(sb: SupabaseClient, userId: string, table: string, local: Table<{ id: string; updatedAt?: string }, string>): Promise<number> {
@@ -71,8 +127,11 @@ async function pullStore(sb: SupabaseClient, userId: string, table: string, loca
   let pulled = 0;
   for (const row of (data ?? []) as Row[]) {
     const remote = row.data;
-    const existing = await local.get(row.id);
     const remoteTs = row.updated_at ? new Date(row.updated_at).getTime() : ts(remote);
+    // Don't resurrect a record that was deleted at/after this version.
+    const tomb = await db.tombstones.get(`${table}:${row.id}`);
+    if (tomb && new Date(tomb.deletedAt).getTime() >= remoteTs) continue;
+    const existing = await local.get(row.id);
     if (!existing || remoteTs > ts(existing)) {
       await local.put(JSON.parse(JSON.stringify(remote)));
       pulled++;
@@ -96,10 +155,9 @@ async function pushStore(sb: SupabaseClient, userId: string, table: string, loca
 }
 
 /**
- * Two-way sync: pull remote changes (newest `updatedAt` wins) into the local
- * store, then push the merged local state back. Safe no-op when sync is not
- * configured or the user is not signed in. Note: deletions are not propagated
- * in this version (no tombstones).
+ * Two-way sync: pull remote deletions, then remote changes (newest `updatedAt`
+ * wins), then push local deletions and the merged local state. Safe no-op when
+ * sync is not configured or the user is not signed in.
  */
 export async function sync(): Promise<{ pushed: number; pulled: number } | null> {
   if (!supabase) return null;
@@ -109,7 +167,9 @@ export async function sync(): Promise<{ pushed: number; pulled: number } | null>
 
   let pushed = 0;
   let pulled = 0;
+  pulled += await pullTombstones(supabase, userId);
   for (const s of STORES) pulled += await pullStore(supabase, userId, s.table, s.local());
+  await pushTombstones(supabase, userId);
   for (const s of STORES) pushed += await pushStore(supabase, userId, s.table, s.local());
   return { pushed, pulled };
 }

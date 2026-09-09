@@ -149,6 +149,14 @@ export interface Measurement {
   updatedAt?: string; // ISO, for sync conflict resolution
 }
 
+/** Records a deletion so it can propagate to other devices during sync. */
+export interface Tombstone {
+  id: string; // `${table}:${recordId}`
+  table: string; // remote table name, e.g. 'day_logs'
+  recordId: string;
+  deletedAt: string; // ISO
+}
+
 /** Per-day diary entry. */
 export interface DayLog {
   id: string; // `${profileId}:${date}`
