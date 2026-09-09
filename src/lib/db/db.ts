@@ -27,8 +27,19 @@ export async function ensureBootstrap(): Promise<string> {
   const migratedId = await migrateFromLocalStorage();
   if (migratedId) return migratedId;
 
-  const existing = await db.profiles.toCollection().first();
-  if (existing) return existing.id;
+  const profiles = await db.profiles.toArray();
+  if (profiles.length === 1) return profiles[0].id;
+  if (profiles.length > 1) {
+    // Multiple profiles can exist after a re-mapped import; pick the one that
+    // actually holds data so the app never boots into an empty profile.
+    let best = profiles[0];
+    let bestN = -1;
+    for (const p of profiles) {
+      const n = await db.dayLogs.where('profileId').equals(p.id).count();
+      if (n > bestN) { bestN = n; best = p; }
+    }
+    return best.id;
+  }
 
   const now = new Date().toISOString();
   const profile: Profile = {

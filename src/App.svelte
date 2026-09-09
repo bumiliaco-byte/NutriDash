@@ -113,7 +113,8 @@
     const file = input.files?.[0];
     if (!file) return;
     try {
-      const res = await importBackup(await file.text());
+      const res = await importBackup(await file.text(), pid);
+      plan = await getActivePlan(pid);
       await reloadDay();
       dataVersion++;
       alert(`Ripristino completato: ${res.dayLogs} giornate, ${res.plans} piani.`);

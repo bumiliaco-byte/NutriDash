@@ -38,16 +38,59 @@ export async function downloadBackup(): Promise<void> {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
-/** Restore a backup (merge by primary key; newer data wins on day logs). */
-export async function importBackup(json: string): Promise<{ profiles: number; plans: number; dayLogs: number }> {
+/**
+ * Restore a backup (merge by primary key; newer data wins on day logs).
+ *
+ * When `targetProfileId` is given, all imported data is re-mapped onto that
+ * profile. This is essential on iOS/mobile where a freshly added home-screen
+ * icon bootstraps a NEW profile id: without re-mapping, imported day logs stay
+ * attached to the backup's old profile id and never show up.
+ */
+export async function importBackup(
+  json: string,
+  targetProfileId?: string,
+): Promise<{ profiles: number; plans: number; dayLogs: number }> {
   const data = JSON.parse(json) as Backup;
   if (data.app !== 'nutridash') throw new Error('File non valido');
 
+  const remap = !!targetProfileId;
+
   await db.transaction('rw', db.profiles, db.plans, db.dayLogs, db.measurements, async () => {
-    if (data.profiles?.length) await db.profiles.bulkPut(data.profiles);
-    if (data.plans?.length) await db.plans.bulkPut(data.plans);
-    if (data.measurements?.length) await db.measurements.bulkPut(data.measurements);
-    for (const log of data.dayLogs ?? []) {
+    if (remap) {
+      // Keep the current profile id; adopt anthropometric fields from the backup.
+      const src = data.profiles?.[0];
+      const cur = await db.profiles.get(targetProfileId!);
+      if (src && cur) {
+        await db.profiles.put({
+          ...cur,
+          name: src.name ?? cur.name,
+          sex: src.sex ?? cur.sex,
+          birthDate: src.birthDate ?? cur.birthDate,
+          heightM: src.heightM ?? cur.heightM,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      // Deactivate existing plans so the imported active plan wins.
+      const existing = await db.plans.where('profileId').equals(targetProfileId!).toArray();
+      for (const p of existing) if (p.active) await db.plans.update(p.id, { active: false });
+    } else if (data.profiles?.length) {
+      await db.profiles.bulkPut(data.profiles);
+    }
+
+    if (data.plans?.length) {
+      const plans = remap ? data.plans.map((p) => ({ ...p, profileId: targetProfileId! })) : data.plans;
+      await db.plans.bulkPut(plans);
+    }
+
+    if (data.measurements?.length) {
+      const ms = remap
+        ? data.measurements.map((m) => ({ ...m, profileId: targetProfileId!, id: `${targetProfileId}:${m.date}` }))
+        : data.measurements;
+      await db.measurements.bulkPut(ms);
+    }
+
+    for (const raw of data.dayLogs ?? []) {
+      const log = remap ? { ...raw, profileId: targetProfileId!, id: `${targetProfileId}:${raw.date}` } : raw;
       const local = await db.dayLogs.get(log.id);
       if (!local || new Date(log.updatedAt) >= new Date(local.updatedAt)) {
         await db.dayLogs.put(log);
