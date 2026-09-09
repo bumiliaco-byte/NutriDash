@@ -146,6 +146,7 @@ export interface Measurement {
   ffmPct?: number;
   circumferences?: Record<string, number>;
   skinfolds?: Record<string, number>;
+  updatedAt?: string; // ISO, for sync conflict resolution
 }
 
 /** Per-day diary entry. */

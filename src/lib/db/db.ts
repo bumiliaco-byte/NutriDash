@@ -27,19 +27,8 @@ export async function ensureBootstrap(): Promise<string> {
   const migratedId = await migrateFromLocalStorage();
   if (migratedId) return migratedId;
 
-  const profiles = await db.profiles.toArray();
-  if (profiles.length === 1) return profiles[0].id;
-  if (profiles.length > 1) {
-    // Multiple profiles can exist after a re-mapped import; pick the one that
-    // actually holds data so the app never boots into an empty profile.
-    let best = profiles[0];
-    let bestN = -1;
-    for (const p of profiles) {
-      const n = await db.dayLogs.where('profileId').equals(p.id).count();
-      if (n > bestN) { bestN = n; best = p; }
-    }
-    return best.id;
-  }
+  const picked = await pickProfileId();
+  if (picked) return picked;
 
   const now = new Date().toISOString();
   const profile: Profile = {
@@ -53,6 +42,25 @@ export async function ensureBootstrap(): Promise<string> {
   await db.profiles.add(profile);
   await db.plans.add(defaultPlan(profile.id));
   return profile.id;
+}
+
+/**
+ * Choose which profile the app should use. With a single profile it's trivial;
+ * when several exist (e.g. after a re-mapped import or a cloud pull from another
+ * device) pick the one holding the most day logs so the app never boots into an
+ * empty profile. Returns '' when there are no profiles yet.
+ */
+export async function pickProfileId(): Promise<string> {
+  const profiles = await db.profiles.toArray();
+  if (!profiles.length) return '';
+  if (profiles.length === 1) return profiles[0].id;
+  let best = profiles[0];
+  let bestN = -1;
+  for (const p of profiles) {
+    const n = await db.dayLogs.where('profileId').equals(p.id).count();
+    if (n > bestN) { bestN = n; best = p; }
+  }
+  return best.id;
 }
 
 /** Get the active plan for a profile (creating a default if none exists). */

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import type { DayLog, DayType, Plan } from './lib/types';
-  import { ensureBootstrap, getActivePlan, db } from './lib/db/db';
+  import { ensureBootstrap, getActivePlan, pickProfileId, db } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
   import { mealsFor } from './lib/data/plan';
-  import { syncEnabled, sync } from './lib/sync/supabase';
+  import { syncEnabled } from './lib/sync/supabase';
   import { downloadBackup, downloadCsv, importBackup } from './lib/backup';
   import { weekDays, logsInRange, tallyFrequencies } from './lib/stats';
   import MacroSummary from './lib/components/MacroSummary.svelte';
@@ -16,6 +16,7 @@
   import MonthHistory from './lib/components/MonthHistory.svelte';
   import ShoppingList from './lib/components/ShoppingList.svelte';
   import MeasurementsCard from './lib/components/MeasurementsCard.svelte';
+  import SyncPanel from './lib/components/SyncPanel.svelte';
   import PlanEditor from './lib/components/PlanEditor.svelte';
 
   const DOW = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
@@ -77,6 +78,19 @@
   }
 
   async function onPlanChanged() {
+    plan = await getActivePlan(pid);
+    await reloadDay();
+    dataVersion++;
+  }
+
+  // After a cloud sync, converge on the profile that now holds the data.
+  async function onSynced() {
+    const best = await pickProfileId();
+    if (best && best !== pid) {
+      pid = best;
+      const p = await db.profiles.get(pid);
+      profileName = p?.name ?? '';
+    }
     plan = await getActivePlan(pid);
     await reloadDay();
     dataVersion++;
@@ -171,7 +185,6 @@
     await reloadDay();
     ready = true;
     await scrollToCurrentMeal();
-    if (syncEnabled()) sync().catch(() => {});
   });
 </script>
 
@@ -237,6 +250,7 @@
     <ShoppingList profileId={pid} {dateStr} {plan} {dataVersion} />
     <MonthHistory profileId={pid} {dateStr} {plan} {dataVersion} onPick={(d) => { dateStr = d; reloadDay(); }} />
     <MeasurementsCard profileId={pid} {dataVersion} />
+    <SyncPanel {onSynced} />
 
     <PlanEditor profileId={pid} {plan} onChanged={onPlanChanged} />
 

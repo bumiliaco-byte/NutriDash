@@ -46,6 +46,7 @@
       weightKg: fWeight ?? undefined,
       bmi: bmiFor(fWeight),
       circumferences: Object.keys(circ).length ? circ : undefined,
+      updatedAt: new Date().toISOString(),
     };
     await db.measurements.put(JSON.parse(JSON.stringify(m)));
     fWeight = null; fVita = null; fFianchi = null; fDate = todayStr();
