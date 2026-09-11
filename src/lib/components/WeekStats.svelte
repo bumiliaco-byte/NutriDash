@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Plan } from '../types';
-  import { logsInRange, weekDays, weekSummary, weeklyBreakdown, type WeekSummary, type DayBar } from '../stats';
+  import { logsInRange, weekDays, weekSummary, weeklyBreakdown, planIndexResolver, type WeekSummary, type DayBar } from '../stats';
 
-  let { profileId, dateStr, plan, dataVersion }: {
-    profileId: string; dateStr: string; plan: Plan; dataVersion: number;
+  let { profileId, dateStr, plan, planIndex, dataVersion }: {
+    profileId: string; dateStr: string; plan: Plan; planIndex: Map<string, Plan>; dataVersion: number;
   } = $props();
 
   let sum = $state<WeekSummary | null>(null);
@@ -12,9 +12,10 @@
   $effect(() => {
     void dataVersion;
     const days = weekDays(dateStr);
+    const planFor = planIndexResolver(planIndex, plan);
     logsInRange(profileId, days[0], days[6]).then(logs => {
-      sum = weekSummary(logs, plan);
-      bars = weeklyBreakdown(logs, plan, days);
+      sum = weekSummary(logs, planFor);
+      bars = weeklyBreakdown(logs, planFor, days);
     });
   });
 

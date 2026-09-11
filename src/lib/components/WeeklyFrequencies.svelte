@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Plan } from '../types';
-  import { logsInRange, tallyFrequencies, weekDays } from '../stats';
+  import { logsInRange, tallyFrequencies, weekDays, planIndexResolver } from '../stats';
 
-  let { profileId, dateStr, plan, dataVersion }: {
-    profileId: string; dateStr: string; plan: Plan; dataVersion: number;
+  let { profileId, dateStr, plan, planIndex, dataVersion }: {
+    profileId: string; dateStr: string; plan: Plan; planIndex: Map<string, Plan>; dataVersion: number;
   } = $props();
 
   let counts = $state<Record<string, number>>({});
@@ -12,8 +12,9 @@
     // re-run when the week or data changes
     void dataVersion;
     const days = weekDays(dateStr);
+    const planFor = planIndexResolver(planIndex, plan);
     logsInRange(profileId, days[0], days[6]).then(logs => {
-      counts = tallyFrequencies(logs, plan);
+      counts = tallyFrequencies(logs, plan, planFor);
     });
   });
 

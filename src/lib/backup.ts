@@ -1,7 +1,7 @@
-import { db } from './db/db';
+import { db, loadPlanIndex } from './db/db';
 import type { DayLog, Measurement, Plan, Profile } from './types';
 import { dayMacros } from './compute';
-import { dayCompletion } from './stats';
+import { dayCompletion, planIndexResolver } from './stats';
 
 interface Backup {
   app: 'nutridash';
@@ -109,11 +109,13 @@ export async function importBackup(
 export async function downloadCsv(profileId: string, plan: Plan): Promise<void> {
   const logs = (await db.dayLogs.where('profileId').equals(profileId).toArray())
     .sort((a, b) => a.date.localeCompare(b.date));
+  const planFor = planIndexResolver(await loadPlanIndex(profileId), plan);
   const rows: string[][] = [
     ['data', 'tipo', 'kcal', 'carboidrati_g', 'proteine_g', 'grassi_g', 'acqua_l', 'completamento_%', 'pasto_libero'],
   ];
   for (const l of logs) {
-    const m = dayMacros(l, plan);
+    const p = planFor(l);
+    const m = dayMacros(l, p);
     rows.push([
       l.date,
       l.dayType,
@@ -122,7 +124,7 @@ export async function downloadCsv(profileId: string, plan: Plan): Promise<void> 
       String(Math.round(m.protein)),
       String(Math.round(m.fat)),
       (l.water * 0.25).toFixed(2),
-      String(Math.round(dayCompletion(l, plan) * 100)),
+      String(Math.round(dayCompletion(l, p) * 100)),
       l.freeMeal ?? '',
     ]);
   }

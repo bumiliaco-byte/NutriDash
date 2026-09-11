@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Plan } from '../types';
-  import { logsInRange, weekDays, shoppingList, type ShoppingItem } from '../stats';
+  import { logsInRange, weekDays, shoppingList, planIndexResolver, type ShoppingItem } from '../stats';
 
-  let { profileId, dateStr, plan, dataVersion }: {
-    profileId: string; dateStr: string; plan: Plan; dataVersion: number;
+  let { profileId, dateStr, plan, planIndex, dataVersion }: {
+    profileId: string; dateStr: string; plan: Plan; planIndex: Map<string, Plan>; dataVersion: number;
   } = $props();
 
   let items = $state<ShoppingItem[]>([]);
@@ -11,8 +11,9 @@
   $effect(() => {
     void dataVersion;
     const days = weekDays(dateStr);
+    const planFor = planIndexResolver(planIndex, plan);
     logsInRange(profileId, days[0], days[6]).then(logs => {
-      items = shoppingList(logs, plan);
+      items = shoppingList(logs, planFor);
     });
   });
 </script>

@@ -2,10 +2,10 @@
   import { untrack } from 'svelte';
   import type { Plan } from '../types';
   import { fmt, todayStr } from '../state';
-  import { dayCompletion, logsInRange } from '../stats';
+  import { dayCompletion, logsInRange, planIndexResolver } from '../stats';
 
-  let { profileId, dateStr, plan, dataVersion, onPick }: {
-    profileId: string; dateStr: string; plan: Plan; dataVersion: number;
+  let { profileId, dateStr, plan, planIndex, dataVersion, onPick }: {
+    profileId: string; dateStr: string; plan: Plan; planIndex: Map<string, Plan>; dataVersion: number;
     onPick: (date: string) => void;
   } = $props();
 
@@ -36,9 +36,10 @@
     const [y, m] = viewMonth.split('-').map(Number);
     const start = fmt(new Date(y, m - 1, 1));
     const end = fmt(new Date(y, m, 0));
+    const planFor = planIndexResolver(planIndex, plan);
     logsInRange(profileId, start, end).then(logs => {
       const map: Record<string, number> = {};
-      for (const l of logs) map[l.date] = dayCompletion(l, plan);
+      for (const l of logs) map[l.date] = dayCompletion(l, planFor(l));
       completion = map;
     });
   });

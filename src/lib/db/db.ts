@@ -144,6 +144,12 @@ export async function listPlans(profileId: string): Promise<Plan[]> {
   return plans.sort((a, b) => b.version - a.version);
 }
 
+/** Every plan version keyed by id, so past days can be recomputed with their own version. */
+export async function loadPlanIndex(profileId: string): Promise<Map<string, Plan>> {
+  const plans = await db.plans.where('profileId').equals(profileId).toArray();
+  return new Map(plans.map(p => [p.id, p]));
+}
+
 /** Persist in-place edits to a plan version. */
 export async function savePlan(plan: Plan): Promise<void> {
   await db.plans.put(JSON.parse(JSON.stringify({ ...plan, userEdited: true })));

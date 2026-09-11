@@ -25,14 +25,28 @@ export async function logsInRange(profileId: string, start: string, end: string)
     .toArray();
 }
 
+/** Picks the plan version a given day log must be computed with. */
+export type PlanFor = (log: DayLog) => Plan;
+
+/**
+ * Resolve each log against the plan version it was recorded with, so past days
+ * keep the portions and options that were active back then. Falls back to the
+ * current plan when that version is unavailable (e.g. logs pulled from another
+ * device whose plan versions were never synced).
+ */
+export function planIndexResolver(index: Map<string, Plan>, fallback: Plan): PlanFor {
+  return (log) => index.get(log.planId) ?? fallback;
+}
+
 /** Count how many times each frequency category was chosen across the logs. */
-export function tallyFrequencies(logs: DayLog[], plan: Plan): Record<string, number> {
+export function tallyFrequencies(logs: DayLog[], plan: Plan, planFor: PlanFor): Record<string, number> {
   const counts: Record<string, number> = {};
+  // Caps come from the current plan: they are the rules being tracked against today.
   for (const f of plan.frequencies) counts[f.key] = 0;
 
   for (const log of logs) {
     if (log.freeMeal && 'pastolibero' in counts) counts.pastolibero++;
-    const meals = mealsFor(log.dayType, plan, log);
+    const meals = mealsFor(log.dayType, planFor(log), log);
     for (const meal of meals) {
       if (log.piatto?.[meal.id]) {
         if ('piattoUnico' in counts) counts.piattoUnico++;
@@ -59,13 +73,13 @@ export interface ShoppingItem {
 }
 
 /** Build a shopping list from the free notes attached to selected foods. */
-export function shoppingList(logs: DayLog[], plan: Plan): ShoppingItem[] {
+export function shoppingList(logs: DayLog[], planFor: PlanFor): ShoppingItem[] {
   const map = new Map<string, ShoppingItem>();
   for (const log of logs) {
     const notes = log.notes ?? {};
     // Map each selection key to the chosen option label for context.
     const labelByKey: Record<string, string> = {};
-    const meals = mealsFor(log.dayType, plan, log);
+    const meals = mealsFor(log.dayType, planFor(log), log);
     for (const meal of meals) {
       if (log.piatto?.[meal.id]) labelByKey[`${meal.id}.piatto`] = 'Piatto unico';
       for (const slot of meal.slots) {
@@ -130,16 +144,17 @@ export interface WeekSummary {
 }
 
 /** Aggregate stats over logs (averaged across days that have any data). */
-export function weekSummary(logs: DayLog[], plan: Plan): WeekSummary {
+export function weekSummary(logs: DayLog[], planFor: PlanFor): WeekSummary {
   const active = logs.filter(l =>
     Object.keys(l.sel).length || Object.keys(l.chk).length || l.water > 0);
   const n = active.length || 1;
   let kcal = 0, carbs = 0, protein = 0, fat = 0, water = 0, compl = 0;
   for (const l of active) {
-    const m = dayMacros(l, plan);
+    const p = planFor(l);
+    const m = dayMacros(l, p);
     kcal += m.kcal; carbs += m.carbs; protein += m.protein; fat += m.fat;
     water += l.water * 0.25;
-    compl += dayCompletion(l, plan);
+    compl += dayCompletion(l, p);
   }
   return {
     loggedDays: active.length,
@@ -164,13 +179,13 @@ export interface DayBar {
 }
 
 /** Per-day kcal/macro breakdown for the 7 given dates (Mon..Sun). */
-export function weeklyBreakdown(logs: DayLog[], plan: Plan, days: string[]): DayBar[] {
+export function weeklyBreakdown(logs: DayLog[], planFor: PlanFor, days: string[]): DayBar[] {
   const WD = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
   const byDate = new Map(logs.map(l => [l.date, l]));
   return days.map((date, i) => {
     const log = byDate.get(date);
     const hasData = !!log && (Object.keys(log.sel).length > 0 || Object.keys(log.chk).length > 0 || log.water > 0);
-    const m = log && hasData ? dayMacros(log, plan) : { kcal: 0, carbs: 0, protein: 0, fat: 0 };
+    const m = log && hasData ? dayMacros(log, planFor(log)) : { kcal: 0, carbs: 0, protein: 0, fat: 0 };
     return {
       date,
       label: WD[i],

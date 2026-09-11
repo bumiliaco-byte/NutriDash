@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import type { DayLog, DayType, Plan } from './lib/types';
-  import { ensureBootstrap, getActivePlan, pickProfileId, deleteDayLog, db } from './lib/db/db';
+  import { ensureBootstrap, getActivePlan, loadPlanIndex, pickProfileId, deleteDayLog, db } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
   import { mealsFor } from './lib/data/plan';
   import { syncEnabled, sync } from './lib/sync/supabase';
   import { downloadBackup, downloadCsv, importBackup } from './lib/backup';
-  import { weekDays, logsInRange, tallyFrequencies } from './lib/stats';
+  import { weekDays, logsInRange, tallyFrequencies, planIndexResolver } from './lib/stats';
   import MacroSummary from './lib/components/MacroSummary.svelte';
   import DayProgress from './lib/components/DayProgress.svelte';
   import WaterCard from './lib/components/WaterCard.svelte';
@@ -29,6 +29,7 @@
   let ready = $state(false);
   let pid = $state('');
   let plan = $state<Plan | null>(null);
+  let planIndex = $state<Map<string, Plan>>(new Map());
   let dateStr = $state(todayStr());
   let day = $state<DayLog | null>(null);
   let profileName = $state('');
@@ -50,7 +51,10 @@
     localStorage.setItem('nd_bold', bold ? '1' : '0');
   });
 
-  const meals = $derived(day && plan ? mealsFor(day.dayType, plan, day) : []);
+  // A logged day keeps the plan version it was recorded with, so its macros and
+  // options stay faithful even after the plan changes.
+  const dayPlan = $derived(day && plan ? (planIndex.get(day.planId) ?? plan) : plan);
+  const meals = $derived(day && dayPlan ? mealsFor(day.dayType, dayPlan, day) : []);
   const dateLabel = $derived(labelFor(dateStr));
   const isToday = $derived(dateStr === todayStr());
 
@@ -62,8 +66,9 @@
     const p = plan;
     if (!p || !pid) return;
     const wk = weekDays(ds);
+    const planFor = planIndexResolver(planIndex, p);
     logsInRange(pid, wk[0], wk[6]).then((logs) => {
-      freqCounts = tallyFrequencies(logs, p);
+      freqCounts = tallyFrequencies(logs, p, planFor);
     });
   });
 
@@ -72,13 +77,18 @@
     return { d1: DOW[d.getDay()], d2: `${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}` };
   }
 
+  async function reloadPlan() {
+    plan = await getActivePlan(pid);
+    planIndex = await loadPlanIndex(pid);
+  }
+
   async function reloadDay() {
     if (!plan) return;
     day = await loadDay(pid, dateStr, plan);
   }
 
   async function onPlanChanged() {
-    plan = await getActivePlan(pid);
+    await reloadPlan();
     await reloadDay();
     dataVersion++;
   }
@@ -91,7 +101,7 @@
       const p = await db.profiles.get(pid);
       profileName = p?.name ?? '';
     }
-    plan = await getActivePlan(pid);
+    await reloadPlan();
     await reloadDay();
     dataVersion++;
   }
@@ -143,7 +153,7 @@
     if (!file) return;
     try {
       const res = await importBackup(await file.text(), pid);
-      plan = await getActivePlan(pid);
+      await reloadPlan();
       await reloadDay();
       dataVersion++;
       alert(`Ripristino completato: ${res.dayLogs} giornate, ${res.plans} piani.`);
@@ -194,7 +204,7 @@
 
   onMount(async () => {
     pid = await ensureBootstrap();
-    plan = await getActivePlan(pid);
+    await reloadPlan();
     const p = await db.profiles.get(pid);
     profileName = p?.name ?? '';
     await reloadDay();
@@ -253,9 +263,9 @@
 </header>
 
 <div class="wrap" role="group" ontouchstart={onTouchStart} ontouchend={onTouchEnd}>
-  {#if ready && day && plan}
-    <MacroSummary {day} {plan} />
-    <DayProgress {day} {plan} />
+  {#if ready && day && plan && dayPlan}
+    <MacroSummary {day} plan={dayPlan} />
+    <DayProgress {day} plan={dayPlan} />
     <WaterCard bind:day {save} />
     {#each meals as meal, i (meal.id)}
       {#if i > 0}<div class="mealsep"><span>+</span></div>{/if}
@@ -263,10 +273,10 @@
     {/each}
     <button class="reset" onclick={resetDay}>↺ Azzera questa giornata</button>
 
-    <WeeklyFrequencies profileId={pid} {dateStr} {plan} {dataVersion} />
-    <WeekStats profileId={pid} {dateStr} {plan} {dataVersion} />
-    <ShoppingList profileId={pid} {dateStr} {plan} {dataVersion} />
-    <MonthHistory profileId={pid} {dateStr} {plan} {dataVersion} onPick={(d) => { dateStr = d; reloadDay(); }} />
+    <WeeklyFrequencies profileId={pid} {dateStr} {plan} {planIndex} {dataVersion} />
+    <WeekStats profileId={pid} {dateStr} {plan} {planIndex} {dataVersion} />
+    <ShoppingList profileId={pid} {dateStr} {plan} {planIndex} {dataVersion} />
+    <MonthHistory profileId={pid} {dateStr} {plan} {planIndex} {dataVersion} onPick={(d) => { dateStr = d; reloadDay(); }} />
     <MeasurementsCard profileId={pid} {dataVersion} onChanged={scheduleAutoSync} />
     <SyncPanel {onSynced} />
 

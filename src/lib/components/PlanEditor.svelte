@@ -76,7 +76,7 @@
   async function saveAsNewVersion() {
     if (!draft) return;
     busy = true;
-    await savePlan(draft);
+    // The current version is left untouched: days logged under it keep their macros.
     await createPlanVersion(draft);
     busy = false;
     draft = null;
