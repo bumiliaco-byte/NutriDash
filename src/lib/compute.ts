@@ -5,10 +5,11 @@ import { mealsFor } from './data/plan';
 const EMPTY: Macros = { kcal: 0, carbs: 0, protein: 0, fat: 0 };
 
 /**
- * Estimated macros for a "piatto unico" (≈90g cereale + 30g legumi secchi + verdure),
- * aligned to CREA values. Olio EVO is counted separately as its own check slot.
+ * Estimated macros for a "piatto unico" (≈90g cereale + 30g legumi secchi),
+ * aligned to CREA values. Verdura and olio EVO are counted separately as their
+ * own slots, so they must not be included here.
  */
-export const PIATTO_UNICO: Macros = { kcal: 458, carbs: 88, protein: 20, fat: 3 };
+export const PIATTO_UNICO: Macros = { kcal: 408, carbs: 80, protein: 16.5, fat: 2.1 };
 
 function add(a: Macros, b: Macros | null): Macros {
   if (!b) return a;

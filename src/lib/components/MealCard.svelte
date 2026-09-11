@@ -71,6 +71,10 @@
     return m ? { c: Math.round(m.carbs), p: Math.round(m.protein), f: Math.round(m.fat) } : null;
   }
 
+  function sourceLabel(source: SlotOption['macroSource']): string {
+    return source === 'label' ? 'etichetta' : 'stima media';
+  }
+
   function covered(slot: Slot) {
     if (freeSel && slot.kind !== 'freeToggle') return true; // free meal inhibits the rest
     return piattoOn && (slot.id === 'gluc' || slot.id === 'prot');
@@ -136,7 +140,7 @@
           <span class="txt">
             <b>Piatto unico</b>
             <span>80–100g pasta/riso/orzo/farro + 30g legumi secchi · verdura come contorno</span>
-            <span class="macs"><b class="k">{Math.round(PIATTO_UNICO.kcal)} kcal</b> · C {Math.round(PIATTO_UNICO.carbs)} · P {Math.round(PIATTO_UNICO.protein)} · G {Math.round(PIATTO_UNICO.fat)}</span>
+            <span class="macs"><b class="k">{Math.round(PIATTO_UNICO.kcal)} kcal</b> · C {Math.round(PIATTO_UNICO.carbs)} · P {Math.round(PIATTO_UNICO.protein)} · G {Math.round(PIATTO_UNICO.fat)} · stima media</span>
           </span>
         </button>
         {#if piattoOn}
@@ -172,7 +176,7 @@
                 <span class="txt">
                   <b>{opt.label}</b>
                   {#if opt.detail}<span>{opt.detail}</span>{/if}
-                  {#if optMac(opt)}<span class="macs"><b class="k">{optKcal(opt)} kcal</b> · C {optMac(opt)!.c} · P {optMac(opt)!.p} · G {optMac(opt)!.f}</span>{/if}
+                  {#if optMac(opt)}<span class="macs"><b class="k">{optKcal(opt)} kcal</b> · C {optMac(opt)!.c} · P {optMac(opt)!.p} · G {optMac(opt)!.f} · {sourceLabel(opt.macroSource)}</span>{/if}
                   {#if opt.lim}<span class="lim">{opt.lim}</span>{/if}
                   {#if optDisabled(slot, opt)}<span class="lim over">max settimanale raggiunto</span>{/if}
                 </span>
@@ -194,7 +198,7 @@
             <span class="txt">
               <b>{slot.label}</b>
               {#if slot.detail}<span>{slot.detail}</span>{/if}
-              {#if slotMac(slot)}<span class="macs"><b class="k">{slotKcal(slot)} kcal</b> · C {slotMac(slot)!.c} · P {slotMac(slot)!.p} · G {slotMac(slot)!.f}</span>{/if}
+              {#if slotMac(slot)}<span class="macs"><b class="k">{slotKcal(slot)} kcal</b> · C {slotMac(slot)!.c} · P {slotMac(slot)!.p} · G {slotMac(slot)!.f} · {sourceLabel(slot.macroSource)}</span>{/if}
             </span>
           </button>
           {#if isChk(slot) && slot.id !== 'olio'}

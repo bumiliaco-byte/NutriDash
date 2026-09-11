@@ -6,6 +6,7 @@ function withMacros(opts: SlotOption[]): SlotOption[] {
   return opts.map(o => ({
     ...o,
     per100: o.per100 ?? (o.foodId ? FOODS[o.foodId]?.per100 : undefined),
+    macroSource: o.macroSource ?? (o.foodId ? FOODS[o.foodId]?.macroSource : undefined) ?? 'estimate',
   }));
 }
 
@@ -31,7 +32,7 @@ export const GLUC_ALL: SlotOption[] = [
   { id: 'pasta', label: 'Pasta normale o integrale', detail: '100g', foodId: 'pasta', grams: 100 },
   { id: 'riso', label: 'Riso', detail: '100g', foodId: 'riso', grams: 100 },
   { id: 'pane', label: 'Pane', detail: '130g', foodId: 'pane', grams: 130 },
-  { id: 'pastaPane', label: 'Pasta + pane', detail: '80g + 30g', foodId: 'pasta', grams: 80 },
+  { id: 'pastaPane', label: 'Pasta + pane', detail: '80g + 30g', grams: 110, per100: { kcal: 331.73, carbs: 67.36, protein: 10.45, fat: 1.36 } },
   { id: 'patate', label: 'Patate', detail: '460g', foodId: 'patate', grams: 460 },
   { id: 'farro', label: 'Farro / orzo / quinoa', detail: '80g', foodId: 'farro', grams: 80 },
   { id: 'crostini', label: 'Crostini', detail: "60–70g · Buitoni / Fiori d'Acqua Mulino Bianco", foodId: 'crostini', grams: 65 },
@@ -41,7 +42,7 @@ export const GLUC_NON: SlotOption[] = [
   { id: 'pasta', label: 'Pasta normale o integrale', detail: '80g', foodId: 'pasta', grams: 80 },
   { id: 'riso', label: 'Riso', detail: '80g', foodId: 'riso', grams: 80 },
   { id: 'pane', label: 'Pane', detail: '100g', foodId: 'pane', grams: 100 },
-  { id: 'pastaPane', label: 'Pasta + pane', detail: '60g + 30g', foodId: 'pasta', grams: 60 },
+  { id: 'pastaPane', label: 'Pasta + pane', detail: '60g + 30g', grams: 90, per100: { kcal: 327, carbs: 66.33, protein: 10.33, fat: 1.33 } },
   { id: 'patate', label: 'Patate', detail: '370g', foodId: 'patate', grams: 370 },
   { id: 'farro', label: 'Farro / orzo / quinoa', detail: '80g', foodId: 'farro', grams: 80 },
   { id: 'crostini', label: 'Crostini', detail: "50g · Buitoni / Fiori d'Acqua Mulino Bianco", foodId: 'crostini', grams: 50 },
@@ -109,7 +110,7 @@ export const MEAL_IDEAS: string[] = [
 
 /** Build the default (V1) plan for a profile. */
 /** Bump when the plan's structural content changes so stored plans re-align once. */
-export const SEED_VERSION = 7;
+export const SEED_VERSION = 8;
 
 export function defaultPlan(profileId: string): Plan {
   return {
@@ -130,7 +131,7 @@ export function defaultPlan(profileId: string): Plan {
     spuntinoPost: withMacros(SP_POST_OPTS),
     spuntinoMattina: withMacros(SP_MATT_OPTS),
     spuntinoPomeriggio: withMacros(SP_POM_OPTS),
-    verdura: { ...VERDURA, per100: VERDURA.per100 ?? FOODS[VERDURA.foodId!]?.per100 },
+    verdura: { ...VERDURA, per100: VERDURA.per100 ?? FOODS[VERDURA.foodId!]?.per100, macroSource: 'estimate' },
     frequencies: FREQUENCIES,
     seasons: SEASONS,
   };
@@ -139,7 +140,7 @@ export function defaultPlan(profileId: string): Plan {
 // ---- Meal templates (built from the plan + day type) ----
 
 const COLAZIONE_OPTS: SlotOption[] = [
-  { id: 'yogurt', label: 'Yogurt greco 0%', detail: '150g', foodId: 'yogurtGreco', grams: 150 },
+  { id: 'yogurt', label: 'Yogurt greco', detail: 'vasetto 150g · valori da etichetta', foodId: 'yogurtGreco', grams: 150 },
   { id: 'ricotta', label: 'Ricotta light', detail: '50g · mezza porzione', foodId: 'ricottaLight', grams: 50 },
   { id: 'uovo', label: 'Uovo strapazzato', detail: '1 uovo', foodId: 'uova', grams: 50 },
   { id: 'albume', label: 'Albume', detail: '140g', foodId: 'albume', grams: 140 },
@@ -215,7 +216,7 @@ function spPomTraining(plan: Plan): Meal {
 
 function verduraSlot(plan: Plan): Slot {
   const v = plan.verdura ?? VERDURA;
-  return { id: 'verdura', kind: 'check', label: 'Verdura / ortaggio', detail: VERDURA.detail, grams: v.grams, per100: v.per100, foodId: v.foodId };
+  return { id: 'verdura', kind: 'check', label: 'Verdura / ortaggio', detail: VERDURA.detail, grams: v.grams, per100: v.per100, foodId: v.foodId, macroSource: v.macroSource ?? 'estimate' };
 }
 
 function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: DayTypeLite): Meal {

@@ -20,6 +20,8 @@ export interface Food {
   category: string;
   /** Macros per 100 g. */
   per100: Macros;
+  /** Whether values come from a product label or are a representative estimate. */
+  macroSource?: 'label' | 'estimate';
 }
 
 /** A slot inside a meal: either a single/multiple choice or a simple check. */
@@ -35,6 +37,7 @@ export interface SlotOption {
   grams?: number;
   /** Macros per 100 g, embedded so a plan version is self-contained/editable. */
   per100?: Macros;
+  macroSource?: 'label' | 'estimate';
   /** Frequency bucket this option contributes to (see FrequencyRule). */
   freq?: string;
   /** Weekly limit hint shown in UI, e.g. "max 1 / sett". */
@@ -52,6 +55,7 @@ export interface Slot {
   foodId?: string;
   /** Macros per 100 g, embedded for self-contained macro computation. */
   per100?: Macros;
+  macroSource?: 'label' | 'estimate';
   options?: SlotOption[];
 }
 

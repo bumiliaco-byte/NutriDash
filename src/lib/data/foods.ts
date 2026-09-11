@@ -33,7 +33,7 @@ export const FOODS: Record<string, Food> = {
   crostini: { id: 'crostini', label: 'Crostini', category: 'glucide', per100: { kcal: 400, carbs: 70, protein: 10, fat: 8 } },
 
   // ---- Colazione / spuntini ----
-  yogurtGreco: { id: 'yogurtGreco', label: 'Yogurt greco 0%', category: 'proteina', per100: { kcal: 57, carbs: 4, protein: 10, fat: 0.4 } },
+  yogurtGreco: { id: 'yogurtGreco', label: 'Yogurt greco', category: 'proteina', per100: { kcal: 46.6667, carbs: 3.3333, protein: 6.6667, fat: 2 }, macroSource: 'label' },
   ricottaLight: { id: 'ricottaLight', label: 'Ricotta light', category: 'proteina', per100: { kcal: 138, carbs: 3.5, protein: 11, fat: 8 } },
   albume: { id: 'albume', label: 'Albume', category: 'proteina', per100: { kcal: 48, carbs: 0.7, protein: 11, fat: 0.2 } },
   cereali: { id: 'cereali', label: 'Cereali', category: 'glucide', per100: { kcal: 360, carbs: 60, protein: 12, fat: 6 } },

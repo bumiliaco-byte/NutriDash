@@ -1,6 +1,13 @@
 import Dexie, { type Table } from 'dexie';
-import type { DayLog, Measurement, Plan, Profile, Tombstone } from '../types';
+import type { DayLog, Measurement, Plan, Profile, SlotOption, Tombstone } from '../types';
 import { defaultPlan, SEED_VERSION } from '../data/plan';
+
+function replaceOption(list: SlotOption[] | undefined, defaults: SlotOption[] | undefined, id: string): SlotOption[] | undefined {
+  if (!list || !defaults) return list;
+  const replacement = defaults.find(option => option.id === id);
+  if (!replacement) return list;
+  return list.map(option => option.id === id ? replacement : option);
+}
 
 /** IndexedDB database for NutriDash (local-first store). */
 export class NutriDB extends Dexie {
@@ -90,11 +97,20 @@ export async function getActivePlan(profileId: string): Promise<Plan> {
   const active = plans.find(p => p.active)
     ?? plans.sort((a, b) => b.version - a.version)[0];
   if (active) {
-    // Keep structural content in sync with the code defaults until the user
-    // edits the plan in-app. A bumped SEED_VERSION forces a one-time re-align
-    // even for user-edited plans so shipped plan fixes always reach the user.
-    if (!active.userEdited || active.seedVersion !== SEED_VERSION) {
-      const def = defaultPlan(profileId);
+    const def = defaultPlan(profileId);
+    if (active.userEdited && active.seedVersion !== SEED_VERSION) {
+      const refreshed: Plan = {
+        ...active,
+        glucidiAllenamento: replaceOption(active.glucidiAllenamento, def.glucidiAllenamento, 'pastaPane')!,
+        glucidiNonAllenamento: replaceOption(active.glucidiNonAllenamento, def.glucidiNonAllenamento, 'pastaPane')!,
+        colazioneProt: replaceOption(active.colazioneProt, def.colazioneProt, 'yogurt'),
+        seedVersion: SEED_VERSION,
+      };
+      await db.plans.put(JSON.parse(JSON.stringify(refreshed)));
+      return refreshed;
+    }
+    // Plans that were never customized follow the complete current default.
+    if (!active.userEdited) {
       const refreshed: Plan = {
         ...active,
         targetKcal: def.targetKcal,
