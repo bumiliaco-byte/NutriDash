@@ -364,6 +364,7 @@
       Le kcal sono stime indicative dal piano.<br />
       <a href={GUIDE_URL} target="_blank" rel="noopener">📖 Guida all'uso</a><br />
       <small>Versione {APP_VERSION} · aggiornata il {__BUILD_ID__}</small>
+      <div class="sign">Powered by <b>Brunou77</b></div>
     </div>
   {:else}
     <div class="foot" style="margin-top:40px">Caricamento…</div>
