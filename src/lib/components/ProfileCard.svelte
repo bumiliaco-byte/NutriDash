@@ -2,6 +2,7 @@
   import { untrack } from 'svelte';
   import type { Profile, Sex } from '../types';
   import { updateProfile } from '../db/db';
+  import { syncEnabled, verifyPassword } from '../sync/supabase';
 
   let { profile, onChanged }: { profile: Profile; onChanged: () => void } = $props();
 
@@ -25,6 +26,10 @@
   let pinOld = $state('');
   let pinNew = $state('');
   let pinErr = $state('');
+  /** Forgot-PIN mode: the account password takes the place of the current PIN. */
+  let pinForgot = $state(false);
+  let pinPwd = $state('');
+  let pinBusy = $state(false);
 
   async function save() {
     await updateProfile(profile.id, {
@@ -41,13 +46,28 @@
 
   async function savePin() {
     pinErr = '';
-    if (profile.planPin && pinOld !== profile.planPin) { pinErr = 'PIN attuale errato'; return; }
     if (!/^\d{4,8}$/.test(pinNew)) { pinErr = 'Il nuovo PIN deve avere 4-8 cifre'; return; }
+    if (profile.planPin) {
+      if (pinForgot) {
+        pinBusy = true;
+        const ok = await verifyPassword(pinPwd).catch(() => false);
+        pinBusy = false;
+        if (!ok) { pinErr = 'Password dell’account non corretta'; return; }
+      } else if (pinOld !== profile.planPin) {
+        pinErr = 'PIN attuale errato';
+        return;
+      }
+    }
     await updateProfile(profile.id, { planPin: pinNew });
-    pinOld = ''; pinNew = ''; pinOpen = false;
+    closePin();
     msg = 'PIN aggiornato';
     setTimeout(() => (msg = ''), 2500);
     onChanged();
+  }
+
+  function closePin() {
+    pinOpen = false; pinForgot = false;
+    pinOld = ''; pinNew = ''; pinPwd = ''; pinErr = '';
   }
 </script>
 
@@ -78,15 +98,20 @@
 
       {#if pinOpen}
         <div class="measform" style="margin-top:10px">
-          {#if profile.planPin}
+          {#if profile.planPin && !pinForgot}
             <label>PIN attuale<input type="password" inputmode="numeric" maxlength="8" bind:value={pinOld} /></label>
+          {:else if profile.planPin}
+            <label>Password dell’account<input type="password" autocomplete="current-password" bind:value={pinPwd} /></label>
           {/if}
           <label>Nuovo PIN<input type="password" inputmode="numeric" maxlength="8" bind:value={pinNew} /></label>
         </div>
         <div class="syncbtns" style="margin-top:8px">
-          <button class="syncmain" onclick={savePin}>Salva PIN</button>
-          <button class="syncghost" onclick={() => { pinOpen = false; pinErr = ''; }}>Annulla</button>
+          <button class="syncmain" onclick={savePin} disabled={pinBusy}>{pinBusy ? '…' : 'Salva PIN'}</button>
+          <button class="syncghost" onclick={closePin}>Annulla</button>
         </div>
+        {#if profile.planPin && !pinForgot && syncEnabled()}
+          <button class="synclink" onclick={() => { pinForgot = true; pinErr = ''; }}>PIN dimenticato? Usa la password dell’account</button>
+        {/if}
         {#if pinErr}<div class="syncmsg err">{pinErr}</div>{/if}
       {:else}
         <button class="synclink" onclick={() => (pinOpen = true)}>

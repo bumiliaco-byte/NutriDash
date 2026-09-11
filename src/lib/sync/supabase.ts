@@ -56,6 +56,16 @@ export function onAuthChange(cb: (session: Session | null) => void): () => void 
   return () => data.subscription.unsubscribe();
 }
 
+/** Check the account password without disturbing the current session. */
+export async function verifyPassword(password: string): Promise<boolean> {
+  if (!supabase) return false;
+  const { data } = await supabase.auth.getSession();
+  const email = data.session?.user.email;
+  if (!email) return false;
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  return !error;
+}
+
 /** Send the "reset password" email, pointing back at this app. */
 export async function resetPassword(email: string): Promise<void> {
   if (!supabase) throw new Error('Sync non configurata');
