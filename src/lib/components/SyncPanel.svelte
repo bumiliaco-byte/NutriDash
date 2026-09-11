@@ -30,7 +30,7 @@
     try {
       const res = await sync();
       if (res) {
-        msg = `Sincronizzato: ${res.pulled} scaricati, ${res.pushed} inviati`;
+        msg = `Sincronizzato il ${stamp()}`;
         onSynced?.();
       }
     } catch (e) {
@@ -38,6 +38,12 @@
     } finally {
       busy = false;
     }
+  }
+
+  function stamp(): string {
+    const d = new Date();
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} alle ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
 
   async function logout(wipe: boolean) {

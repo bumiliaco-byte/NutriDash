@@ -24,6 +24,7 @@
 
   const DOW = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
   const MON = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  const APP_VERSION = '1.0';
   const DAY_TYPES: { id: DayType; label: string; ic: string }[] = [
     { id: 'allenamento', label: 'Allenamento', ic: '🏋️' },
     { id: 'nonallenamento', label: 'Riposo', ic: '🛋️' },
@@ -45,19 +46,16 @@
 
   const profileName = $derived(profile?.name ?? '');
 
-  // UI preferences (persisted): compact view, dark theme, bold text.
+  // UI preferences (persisted): compact view, dark theme.
   let dense = $state(localStorage.getItem('nd_dense') === '1');
   let dark = $state(localStorage.getItem('nd_dark') === '1');
-  let bold = $state(localStorage.getItem('nd_bold') === '1');
   $effect(() => {
     const b = document.body;
     b.classList.toggle('dense', dense);
     b.classList.toggle('dark', dark);
-    b.classList.toggle('bold', bold);
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0f1613' : '#2e7d4f');
     localStorage.setItem('nd_dense', dense ? '1' : '0');
     localStorage.setItem('nd_dark', dark ? '1' : '0');
-    localStorage.setItem('nd_bold', bold ? '1' : '0');
   });
 
   // A logged day keeps the plan version it was recorded with, so its macros and
@@ -291,7 +289,7 @@
     <div class="brand">
       <span class="logo">🥗</span>
       <div>
-        NutriDash <span class="ver">V5</span>
+        NutriDash <span class="ver">v{APP_VERSION}</span>
         <small>Piano di {profileName}</small>
       </div>
       <div class="grow"></div>
@@ -301,9 +299,6 @@
         </button>
         <button class="pf" onclick={() => (dark = !dark)} title="Tema chiaro / scuro">
           {dark ? '☀️ Chiaro' : '🌙 Scuro'}
-        </button>
-        <button class="pf" onclick={() => (bold = !bold)} title="Testo normale / grassetto">
-          {bold ? 'Normale' : 'Grassetto'}
         </button>
       </div>
     </div>
@@ -363,7 +358,7 @@
     <div class="foot">
       NutriDash · dati salvati sul dispositivo{syncEnabled() ? ' + sync cloud' : ''}.<br />
       Le kcal sono stime indicative dal piano.<br />
-      <small>versione {__BUILD_ID__}</small>
+      <small>Versione {APP_VERSION} · aggiornata il {__BUILD_ID__}</small>
     </div>
   {:else}
     <div class="foot" style="margin-top:40px">Caricamento…</div>

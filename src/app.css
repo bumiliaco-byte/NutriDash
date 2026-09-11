@@ -204,7 +204,7 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .gatesub{margin:0 0 16px;font-size:.86rem;color:var(--muted);line-height:1.45}
 .gatecard form{display:flex;flex-direction:column;gap:9px}
 .gatecard .synclink{display:block;margin:8px auto 0}
-.gatefoot{margin-top:16px;font-size:.72rem;color:var(--muted);line-height:1.5;text-align:left}
+.gatefoot{margin-top:16px;font-size:.72rem;color:var(--muted);line-height:1.5;text-align:center}
 .obform{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;text-align:left;margin-bottom:14px}
 .obform label,.obfield{display:flex;flex-direction:column;gap:5px;font-size:.72rem;font-weight:700;color:var(--muted)}
 .obform .ob2{grid-column:1 / -1}
@@ -310,11 +310,6 @@ body.dark .measrow .mdelta{background:#26332d}
 body.dark .syncinput{background:#12201a}
 body.dark .syncinput:focus{background:#16261f}
 body.dark .syncghost{background:var(--card);color:var(--ink)}
-
-/* testo grassetto */
-body.bold{font-weight:600}
-body.bold .opt .txt span,body.bold .card .hd .tt small,body.bold .mrow .mv small,
-body.bold .fq .fqh .tgt,body.bold .foot{font-weight:600}
 
 /* tema scuro */
 body.dark{
