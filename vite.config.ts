@@ -11,7 +11,8 @@ export default defineConfig({
   plugins: [
     svelte(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      injectRegister: null, // the app registers the worker itself (UpdateBanner)
       includeAssets: ['favicon.svg', 'apple-touch-icon-180.png'],
       manifest: {
         name: 'NutriDash · Piano nutrizionale',
@@ -31,6 +32,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globIgnores: ['guida/**'],
+        // The guide is a real page: don't let the SPA fallback swallow it.
+        navigateFallbackDenylist: [/guida/],
       },
     }),
   ],

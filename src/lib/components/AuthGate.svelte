@@ -108,6 +108,9 @@
       <button class="synclink" onclick={() => go('in')}>Torna all’accesso</button>
     {/if}
 
-    <div class="gatefoot">I tuoi dati restano visibili solo a te: ogni account vede il proprio piano e il proprio diario.</div>
+    <div class="gatefoot">
+      I tuoi dati restano visibili solo a te: ogni account vede il proprio piano e il proprio diario.<br />
+      <a href={import.meta.env.BASE_URL + 'guida.html'} target="_blank" rel="noopener">📖 Leggi la guida</a>
+    </div>
   </div>
 </div>

@@ -21,10 +21,12 @@
   import AuthGate from './lib/components/AuthGate.svelte';
   import Onboarding from './lib/components/Onboarding.svelte';
   import ProfileCard from './lib/components/ProfileCard.svelte';
+  import UpdateBanner from './lib/components/UpdateBanner.svelte';
 
   const DOW = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
   const MON = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
   const APP_VERSION = '1.0';
+  const GUIDE_URL = import.meta.env.BASE_URL + 'guida.html';
   const DAY_TYPES: { id: DayType; label: string; ic: string }[] = [
     { id: 'allenamento', label: 'Allenamento', ic: '🏋️' },
     { id: 'nonallenamento', label: 'Riposo', ic: '🛋️' },
@@ -277,6 +279,8 @@
   });
 </script>
 
+<UpdateBanner />
+
 {#if phase === 'auth'}
   <AuthGate {recovery} onDone={onSignedIn} />
 {:else if phase === 'setup'}
@@ -358,6 +362,7 @@
     <div class="foot">
       NutriDash · dati salvati sul dispositivo{syncEnabled() ? ' + sync cloud' : ''}.<br />
       Le kcal sono stime indicative dal piano.<br />
+      <a href={GUIDE_URL} target="_blank" rel="noopener">📖 Guida all'uso</a><br />
       <small>Versione {APP_VERSION} · aggiornata il {__BUILD_ID__}</small>
     </div>
   {:else}

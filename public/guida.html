@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="icon" href="favicon.svg" />
+<title>NutriDash · Guida</title>
+<style>
+  :root{
+    --green:#2e7d4f; --green-d:#1f5b39; --green-l:#e6f2ea;
+    --gold:#c99a2e; --gold-l:#faf1d8;
+    --bg:#f4f7f4; --card:#fff; --ink:#20302a; --muted:#6b7d72; --line:#e2e8e3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.6;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;
+    padding:30px 18px 26px;text-align:center}
+  header .logo{font-size:2.4rem}
+  header h1{margin:6px 0 4px;font-size:1.6rem}
+  header p{margin:0;opacity:.9;font-size:.92rem}
+  main{max-width:760px;margin:0 auto;padding:0 16px 60px}
+  section{background:var(--card);border-radius:16px;padding:18px 18px 6px;margin:16px 0;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  h2{color:var(--green-d);font-size:1.2rem;margin:2px 0 10px;display:flex;gap:9px;align-items:baseline}
+  h2 .n{background:var(--green-l);color:var(--green-d);border-radius:20px;font-size:.78rem;
+    padding:2px 10px;font-weight:800;flex:none}
+  h3{font-size:.98rem;color:var(--green-d);margin:18px 0 6px}
+  p,li{font-size:.94rem}
+  ul,ol{padding-left:22px;margin:8px 0}
+  li{margin:4px 0}
+  img{width:100%;max-width:330px;display:block;margin:14px auto;border:1px solid var(--line);
+    border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+  .nota{background:var(--green-l);border-radius:11px;padding:11px 13px;font-size:.88rem;margin:12px 0}
+  .attenzione{background:var(--gold-l);border-radius:11px;padding:11px 13px;font-size:.88rem;margin:12px 0}
+  .indice{background:var(--card);border-radius:16px;padding:16px 18px;margin:16px 0;
+    box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .indice ol{margin:6px 0 0}
+  .indice a{color:var(--green-d)}
+  dl{margin:8px 0}
+  dt{font-weight:700;margin-top:12px;font-size:.94rem}
+  dd{margin:2px 0 0;font-size:.94rem;color:var(--ink)}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:10px 16px 40px}
+  .back{display:inline-block;margin:16px 0 0;color:var(--green-d);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🥗</div>
+  <h1>NutriDash · Guida</h1>
+  <p>Come usare l'app, spiegato semplice</p>
+</header>
+
+<main>
+
+<div class="indice">
+  <strong>In questa guida</strong>
+  <ol>
+    <li><a href="#cose">Che cos'è NutriDash</a></li>
+    <li><a href="#account">Creare il tuo account</a></li>
+    <li><a href="#installare">Mettere l'app sul telefono</a></li>
+    <li><a href="#setup">Il primo avvio: il tuo piano</a></li>
+    <li><a href="#giornata">Segnare la giornata</a></li>
+    <li><a href="#pasti">Pasti, piatto unico e pasto libero</a></li>
+    <li><a href="#acqua">L'acqua</a></li>
+    <li><a href="#settimana">Come va la settimana</a></li>
+    <li><a href="#spesa">Lista della spesa e storico</a></li>
+    <li><a href="#peso">Peso e misurazioni</a></li>
+    <li><a href="#profilo">Il tuo profilo e il PIN</a></li>
+    <li><a href="#piano">Modificare il piano nutrizionale</a></li>
+    <li><a href="#dispositivi">Più dispositivi e sincronizzazione</a></li>
+    <li><a href="#backup">Backup ed esportazioni</a></li>
+    <li><a href="#aggiornamenti">Aggiornamenti dell'app</a></li>
+    <li><a href="#faq">Domande frequenti</a></li>
+  </ol>
+</div>
+
+<section id="cose">
+  <h2><span class="n">1</span> Che cos'è NutriDash</h2>
+  <p>
+    NutriDash è un diario alimentare: ogni giorno spunti quello che hai mangiato scegliendo
+    dalle opzioni del <strong>tuo</strong> piano, e l'app calcola calorie e nutrienti, tiene il
+    conto dell'acqua e ti mostra come sta andando la settimana.
+  </p>
+  <p>
+    Non è un contacalorie generico: parte da un piano organizzato in pasti (colazione, spuntini,
+    pranzo, cena) con porzioni già definite, quindi ti basta spuntare, non pesare e cercare ogni volta.
+  </p>
+  <div class="nota">
+    I tuoi dati sono <strong>solo tuoi</strong>. Ogni persona ha il proprio account e vede
+    soltanto il proprio piano e il proprio diario.
+  </div>
+</section>
+
+<section id="account">
+  <h2><span class="n">2</span> Creare il tuo account</h2>
+  <p>Apri il link dell'app. La prima cosa che vedi è la schermata di accesso.</p>
+  <img src="guida/guida-01-accesso.png" alt="Schermata di accesso" />
+  <ol>
+    <li>Tocca <strong>“Primo accesso? Crea il tuo account”</strong>.</li>
+    <li>Scrivi la tua <strong>email</strong> e una <strong>password</strong> (almeno 6 caratteri).</li>
+    <li>Tocca <strong>Crea account</strong>. Entri subito.</li>
+  </ol>
+  <p>
+    Le volte successive ti basta <strong>Accedi</strong> con la stessa email e password.
+    Di solito non dovrai rifarlo: l'app ti tiene connesso.
+  </p>
+  <div class="nota">
+    Hai dimenticato la password? Tocca <strong>“Password dimenticata”</strong>: ricevi
+    una mail con il link per sceglierne una nuova.
+  </div>
+  <div class="attenzione">
+    Serve internet solo per il primo accesso. Dopo, l'app funziona anche offline e si
+    risincronizza appena torni online.
+  </div>
+</section>
+
+<section id="installare">
+  <h2><span class="n">3</span> Mettere l'app sul telefono</h2>
+  <p>Così la apri con un'icona, come una normale app, senza passare dal browser.</p>
+  <h3>iPhone (Safari)</h3>
+  <ol>
+    <li>Apri il link con <strong>Safari</strong>.</li>
+    <li>Tocca il pulsante <strong>Condividi</strong> (il quadrato con la freccia in su).</li>
+    <li>Scegli <strong>“Aggiungi a Home”</strong> e conferma.</li>
+  </ol>
+  <h3>Android (Chrome)</h3>
+  <ol>
+    <li>Apri il link con <strong>Chrome</strong>.</li>
+    <li>Menu <strong>⋮</strong> in alto a destra.</li>
+    <li>Scegli <strong>“Installa app”</strong> o <strong>“Aggiungi a schermata Home”</strong>.</li>
+  </ol>
+</section>
+
+<section id="setup">
+  <h2><span class="n">4</span> Il primo avvio: il tuo piano</h2>
+  <p>
+    Subito dopo la registrazione l'app ti fa qualche domanda per costruire un piano della
+    tua misura. Ci vogliono due minuti e potrai cambiare tutto in seguito.
+  </p>
+  <img src="guida/guida-02-setup.png" alt="Schermata di primo avvio" />
+  <dl>
+    <dt>Nome, sesso, data di nascita, altezza, peso</dt>
+    <dd>Servono a stimare il fabbisogno e a calcolare il BMI.</dd>
+    <dt>PIN per modificare il piano</dt>
+    <dd>Da 4 a 8 cifre. Serve solo a evitare che tu cambi il piano per sbaglio (vedi punto 11).</dd>
+    <dt>Quanto ti muovi</dt>
+    <dd>Da sedentario a molto attivo: alza o abbassa il fabbisogno stimato.</dd>
+    <dt>Obiettivo calorico giornaliero</dt>
+    <dd>L'app propone un valore calcolato, ma puoi scrivere quello che ti ha dato il tuo nutrizionista.</dd>
+  </dl>
+  <p>
+    Quando tocchi <strong>Crea il mio piano</strong>, l'app costruisce un piano completo con
+    colazione, spuntini, pranzo e cena e <strong>riproporziona le porzioni</strong> al tuo obiettivo.
+  </p>
+  <div class="attenzione">
+    Le porzioni iniziali sono una <strong>stima di partenza</strong>, non una dieta personalizzata.
+    Se segui un piano del nutrizionista, inserisci le tue quantità reali (vedi punto 12).
+  </div>
+</section>
+
+<section id="giornata">
+  <h2><span class="n">5</span> Segnare la giornata</h2>
+  <img src="guida/guida-03-giornata.png" alt="Schermata principale della giornata" />
+  <p>Dall'alto verso il basso:</p>
+  <ul>
+    <li><strong>La data</strong>, con le frecce <em>‹ ›</em> per spostarti al giorno prima o dopo
+      (sul telefono funziona anche lo scorrimento con il dito verso destra o sinistra).</li>
+    <li><strong>Allenamento / Riposo</strong>: scegli com'è la giornata. Nei giorni di allenamento
+      il piano prevede porzioni e pasti diversi.</li>
+    <li><strong>Macronutrienti</strong>: calorie, carboidrati, proteine e grassi di quello che hai
+      spuntato, confrontati con il tuo obiettivo.</li>
+    <li><strong>Completamento</strong>: la percentuale di pasti che hai già compilato.</li>
+    <li><strong>Acqua</strong> e poi <strong>i pasti</strong> uno sotto l'altro.</li>
+  </ul>
+  <div class="nota">
+    Quando apri l'app ti porta automaticamente al pasto dell'ora in cui sei: la mattina alla
+    colazione, all'ora di pranzo al pranzo, e così via.
+  </div>
+  <p>
+    In fondo alla giornata c'è <strong>“Azzera questa giornata”</strong> se vuoi ricominciare da capo.
+  </p>
+</section>
+
+<section id="pasti">
+  <h2><span class="n">6</span> Pasti, piatto unico e pasto libero</h2>
+  <img src="guida/guida-04-pasto.png" alt="Card di un pasto" />
+  <p>
+    Ogni pasto è diviso in gruppi (fonte proteica, fonte glucidica, verdura…). Tocchi
+    l'alimento che hai mangiato e si spunta: sotto a ogni voce vedi la porzione e le calorie.
+  </p>
+  <h3>Piatto unico</h3>
+  <p>
+    Se hai mangiato un piatto unico (pasta e legumi, riso e ceci…) spunti quella voce al posto
+    di scegliere separatamente carboidrati e proteine. La verdura resta da spuntare a parte.
+  </p>
+  <h3>Pasto libero</h3>
+  <p>
+    La casella gialla in cima a pranzo e cena. Spuntala quando mangi fuori piano: quel pasto
+    non viene conteggiato e il resto del pasto si disattiva. Di norma è concesso
+    <strong>una volta a settimana</strong>, e l'app tiene il conto per te.
+  </p>
+  <h3>Le note</h3>
+  <p>
+    Sotto ogni alimento selezionato puoi scrivere una nota (la marca, la ricetta, il tipo di pesce).
+    Quelle note diventano la tua lista della spesa (punto 9).
+  </p>
+</section>
+
+<section id="acqua">
+  <h2><span class="n">7</span> L'acqua</h2>
+  <p>
+    Ogni goccia è un bicchiere da 250 ml. Tocca le gocce fino ad arrivare a quanto hai bevuto,
+    oppure usa i pulsanti <strong>−</strong> e <strong>+</strong>. L'obiettivo predefinito è 3 litri,
+    cioè 12 bicchieri.
+  </p>
+</section>
+
+<section id="settimana">
+  <h2><span class="n">8</span> Come va la settimana</h2>
+  <img src="guida/guida-05-statistiche.png" alt="Frequenze settimanali e statistiche" />
+  <h3>Frequenze settimanali</h3>
+  <p>
+    Molti piani dicono “carne rossa massimo una volta a settimana”, “pesce almeno tre volte”.
+    Qui vedi quante volte hai mangiato ogni categoria da lunedì a domenica e quanto ti manca
+    (o quanto hai sforato).
+  </p>
+  <h3>Statistiche settimana</h3>
+  <p>
+    La media giornaliera di calorie e nutrienti dei giorni che hai compilato, con il grafico
+    dei sette giorni. Serve a vedere l'andamento, non il singolo giorno.
+  </p>
+</section>
+
+<section id="spesa">
+  <h2><span class="n">9</span> Lista della spesa e storico</h2>
+  <img src="guida/guida-06-spesa-storico.png" alt="Lista della spesa e storico mensile" />
+  <h3>Lista della spesa</h3>
+  <p>
+    Raccoglie gli alimenti che hai usato di più nel periodo scelto (settimana, mese, ultimi 30
+    giorni), con il numero di volte. Comoda da guardare prima di fare la spesa.
+  </p>
+  <h3>Storico mensile</h3>
+  <p>
+    Il calendario del mese: più una casella è verde, più quella giornata era completa.
+    Tocca un giorno per aprirlo e correggerlo.
+  </p>
+</section>
+
+<section id="peso">
+  <h2><span class="n">10</span> Peso e misurazioni</h2>
+  <img src="guida/guida-07-misurazioni.png" alt="Misurazioni e visite" />
+  <p>
+    Nella scheda <strong>Misurazioni · visite</strong> registri il peso e, se vuoi, girovita e
+    fianchi. Il BMI viene calcolato da solo usando la tua altezza. Ogni riga mostra anche la
+    differenza di peso rispetto alla misurazione precedente.
+  </p>
+  <p>C'è una misurazione per data: se salvi due volte lo stesso giorno, la seconda sostituisce la prima.</p>
+</section>
+
+<section id="profilo">
+  <h2><span class="n">11</span> Il tuo profilo e il PIN</h2>
+  <img src="guida/guida-08-profilo-pin.png" alt="Scheda del profilo con cambio PIN" />
+  <p>
+    Nella scheda <strong>Il tuo profilo</strong> cambi nome, data di nascita, altezza, sesso e
+    livello di attività. Ricordati di toccare <strong>Salva profilo</strong>.
+  </p>
+  <h3>A cosa serve il PIN</h3>
+  <p>
+    Il PIN protegge <strong>solo</strong> la modifica del piano nutrizionale. Non serve per
+    entrare nell'app né per vedere i tuoi dati: quello lo fa la password dell'account.
+    Serve a evitare che, con un tocco distratto (o un figlio che gioca col telefono), il piano
+    venga stravolto senza accorgersene.
+  </p>
+  <h3>Cambiare il PIN</h3>
+  <ol>
+    <li>Tocca <strong>Cambia il PIN del piano</strong>.</li>
+    <li>Scrivi il PIN attuale e il nuovo PIN.</li>
+    <li><strong>Salva PIN</strong>.</li>
+  </ol>
+  <h3>Se non ricordi il PIN</h3>
+  <p>
+    Nella stessa schermata tocca <strong>“Non ricordi il PIN attuale? Usa la password
+    dell'account”</strong>: inserisci la password con cui accedi e scegli un PIN nuovo.
+  </p>
+</section>
+
+<section id="piano">
+  <h2><span class="n">12</span> Modificare il piano nutrizionale</h2>
+  <p>
+    Qui adatti il piano a quello che ti ha dato il nutrizionista: porzioni, alimenti, calorie
+    obiettivo, limiti settimanali.
+  </p>
+  <img src="guida/guida-09-piano.png" alt="Scheda Piano alimentare bloccata" />
+  <ol>
+    <li>Scorri fino a <strong>Piano alimentare</strong>.</li>
+    <li>Tocca <strong>Sblocca per modificare</strong> e inserisci il PIN.</li>
+  </ol>
+  <img src="guida/guida-10-piano-sbloccato.png" alt="Editor del piano sbloccato" />
+  <p>Una volta sbloccato puoi:</p>
+  <ul>
+    <li>cambiare l'<strong>obiettivo kcal</strong> del giorno;</li>
+    <li>modificare nome, descrizione, <strong>grammi della porzione</strong> e valori nutrizionali
+      di ogni alimento;</li>
+    <li><strong>aggiungere</strong> o <strong>togliere</strong> alimenti da ogni gruppo;</li>
+    <li>impostare i <strong>limiti settimanali</strong> (minimo e massimo) di ogni categoria.</li>
+  </ul>
+
+  <h3>Salva oppure Salva come nuova versione?</h3>
+  <img src="guida/guida-11-salva.png" alt="Pulsanti Salva e Salva come nuova versione" />
+  <dl>
+    <dt>Salva</dt>
+    <dd>
+      Corregge il piano attuale. Anche le <strong>giornate già registrate</strong> vengono
+      ricalcolate con i nuovi valori.<br />
+      Usalo quando stai <strong>correggendo un errore</strong>: un valore sbagliato, un refuso,
+      un grammo digitato male.
+    </dd>
+    <dt>Salva come nuova versione</dt>
+    <dd>
+      Congela il piano attuale e ne crea uno nuovo, valido <strong>da oggi in avanti</strong>.
+      Le giornate passate restano com'erano.<br />
+      Usalo quando il <strong>piano cambia davvero</strong>: nuova visita, porzioni diverse,
+      alimenti aggiunti o tolti.
+    </dd>
+  </dl>
+  <div class="nota">
+    In breve: se stai correggendo un numero → <strong>Salva</strong>. Se stai cambiando dieta →
+    <strong>Salva come nuova versione</strong>.
+  </div>
+  <p>
+    Quando esiste più di una versione compare un elenco in cima alla scheda: puoi tornare a una
+    versione precedente quando vuoi, senza perdere nulla.
+  </p>
+</section>
+
+<section id="dispositivi">
+  <h2><span class="n">13</span> Più dispositivi e sincronizzazione</h2>
+  <p>
+    I dati sono salvati sul dispositivo e copiati nel tuo spazio personale online. Se accedi con
+    lo stesso account dal telefono e dal computer, ritrovi tutto da entrambe le parti.
+  </p>
+  <p>
+    La sincronizzazione è automatica: quando modifichi qualcosa e quando riapri l'app. Nella
+    scheda <strong>Il tuo account</strong> vedi l'ultima sincronizzazione e puoi forzarla con
+    <strong>Sincronizza ora</strong>.
+  </p>
+  <dl>
+    <dt>Esci</dt>
+    <dd>Ti disconnette lasciando i dati su questo dispositivo.</dd>
+    <dt>Esci e cancella i dati da questo dispositivo</dt>
+    <dd>
+      Da usare se presti o cambi il telefono: cancella tutto in locale. I dati restano online e
+      li ritrovi al prossimo accesso.
+    </dd>
+  </dl>
+</section>
+
+<section id="backup">
+  <h2><span class="n">14</span> Backup ed esportazioni</h2>
+  <p>In fondo alla pagina ci sono tre pulsanti:</p>
+  <dl>
+    <dt>Esporta backup</dt>
+    <dd>Scarica un file con tutti i tuoi dati. Tienilo da parte ogni tanto, per sicurezza.</dd>
+    <dt>Importa backup</dt>
+    <dd>Ricarica un file salvato in precedenza.</dd>
+    <dt>Esporta CSV</dt>
+    <dd>
+      Scarica il diario in un foglio di calcolo (una riga per giornata con calorie, nutrienti,
+      acqua e completamento): comodo da mostrare al nutrizionista.
+    </dd>
+  </dl>
+</section>
+
+<section id="aggiornamenti">
+  <h2><span class="n">15</span> Aggiornamenti dell'app</h2>
+  <p>
+    Quando esce una versione nuova compare in basso la scritta
+    <strong>“È disponibile una nuova versione”</strong> con il pulsante <strong>Aggiorna</strong>.
+    Toccalo: l'app si ricarica aggiornata, senza perdere niente.
+  </p>
+  <p>
+    In fondo alla schermata principale trovi sempre la versione che stai usando e la data
+    dell'ultimo aggiornamento.
+  </p>
+</section>
+
+<section id="faq">
+  <h2><span class="n">16</span> Domande frequenti</h2>
+  <dl>
+    <dt>Le calorie sono precise?</dt>
+    <dd>
+      Sono stime. Per gli alimenti confezionati i valori arrivano dall'etichetta (lo vedi scritto
+      accanto), per le categorie ampie (“pesce fresco”, “formaggi freschi”) è una media.
+      Vanno benissimo per l'andamento, non prenderle al grammo.
+    </dd>
+    <dt>Posso usare l'app senza internet?</dt>
+    <dd>Sì, dopo il primo accesso. Le modifiche si sincronizzano appena torni online.</dd>
+    <dt>Ho sbagliato a segnare un giorno passato.</dt>
+    <dd>Vai allo storico mensile, tocca quel giorno e correggilo: si aggiorna tutto da solo.</dd>
+    <dt>Un'altra persona può usare l'app sul mio telefono?</dt>
+    <dd>
+      Sì, ma con il <strong>suo</strong> account: tu esci, lei accede con la sua email.
+      Ognuno vede soltanto i propri dati.
+    </dd>
+    <dt>Se cancello l'app perdo tutto?</dt>
+    <dd>No: i dati sono anche online. Reinstalli, accedi e li ritrovi.</dd>
+  </dl>
+</section>
+
+<a class="back" href="./">← Torna a NutriDash</a>
+
+</main>
+
+<footer>
+  NutriDash · guida per l'utente<br />
+  Le informazioni nutrizionali sono indicative e non sostituiscono il parere di un professionista.
+</footer>
+
+</body>
+</html>

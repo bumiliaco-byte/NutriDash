@@ -192,6 +192,17 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .prefs .pf:hover{background:rgba(255,255,255,.28)}
 .prefs .pf:active{transform:scale(.96)}
 
+/* avviso di nuova versione */
+.updbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:center;gap:10px;
+  background:var(--green-d);color:#fff;padding:11px max(14px, env(safe-area-inset-right))
+  calc(11px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  box-shadow:0 -4px 18px rgba(0,0,0,.25);font-size:.84rem}
+.updtx{flex:1}
+.updbtn{background:#fff;color:var(--green-d);border:none;border-radius:10px;padding:8px 14px;
+  font-weight:800;font-size:.8rem;cursor:pointer}
+.updbtn:disabled{opacity:.7;cursor:default}
+.updx{background:none;border:none;color:#fff;font-size:1.3rem;line-height:1;cursor:pointer;padding:0 4px}
+
 /* schermate a tutta pagina: accesso e primo avvio */
 .gate{min-height:100dvh;display:flex;align-items:center;justify-content:center;
   padding:calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
