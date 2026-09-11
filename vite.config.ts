@@ -6,6 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   // For project pages on GitHub Pages set base to '/<repo>/' (see README).
   base: process.env.BASE_PATH || '/',
+  // Shown in the footer, so it's clear which build a device is actually running.
+  define: { __BUILD_ID__: JSON.stringify(new Date().toISOString().slice(0, 16).replace('T', ' ')) },
   plugins: [
     svelte(),
     VitePWA({

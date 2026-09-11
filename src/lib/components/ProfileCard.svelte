@@ -99,19 +99,19 @@
       {#if pinOpen}
         <div class="measform" style="margin-top:10px">
           {#if profile.planPin && !pinForgot}
-            <label>PIN attuale<input type="password" inputmode="numeric" maxlength="8" bind:value={pinOld} /></label>
+            <label class="ob2">PIN attuale<input type="password" inputmode="numeric" maxlength="8" bind:value={pinOld} /></label>
           {:else if profile.planPin}
-            <label>Password dell’account<input type="password" autocomplete="current-password" bind:value={pinPwd} /></label>
+            <label class="ob2">Password dell’account<input type="password" autocomplete="current-password" bind:value={pinPwd} /></label>
           {/if}
-          <label>Nuovo PIN<input type="password" inputmode="numeric" maxlength="8" bind:value={pinNew} /></label>
+          <label class="ob2">Nuovo PIN<input type="password" inputmode="numeric" maxlength="8" bind:value={pinNew} /></label>
         </div>
+        {#if profile.planPin && !pinForgot && syncEnabled()}
+          <button class="synclink" onclick={() => { pinForgot = true; pinErr = ''; }}>Non ricordi il PIN attuale? Usa la password dell’account</button>
+        {/if}
         <div class="syncbtns" style="margin-top:8px">
           <button class="syncmain" onclick={savePin} disabled={pinBusy}>{pinBusy ? '…' : 'Salva PIN'}</button>
           <button class="syncghost" onclick={closePin}>Annulla</button>
         </div>
-        {#if profile.planPin && !pinForgot && syncEnabled()}
-          <button class="synclink" onclick={() => { pinForgot = true; pinErr = ''; }}>PIN dimenticato? Usa la password dell’account</button>
-        {/if}
         {#if pinErr}<div class="syncmsg err">{pinErr}</div>{/if}
       {:else}
         <button class="synclink" onclick={() => (pinOpen = true)}>

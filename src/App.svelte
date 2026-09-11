@@ -362,7 +362,8 @@
 
     <div class="foot">
       NutriDash · dati salvati sul dispositivo{syncEnabled() ? ' + sync cloud' : ''}.<br />
-      Le kcal sono stime indicative dal piano.
+      Le kcal sono stime indicative dal piano.<br />
+      <small>versione {__BUILD_ID__}</small>
     </div>
   {:else}
     <div class="foot" style="margin-top:40px">Caricamento…</div>

@@ -259,6 +259,7 @@ body.dense .mealsep span{width:26px;height:26px;font-size:1.05rem}
 
 /* misurazioni / visite */
 .measform{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:4px}
+.measform .ob2{grid-column:1 / -1}
 .measform label{display:flex;flex-direction:column;gap:4px;font-size:.72rem;font-weight:700;color:var(--muted)}
 .measform input{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.9rem;
   background:#fff;color:var(--ink);font-family:inherit}
