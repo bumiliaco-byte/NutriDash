@@ -113,12 +113,14 @@ export const MEAL_IDEAS: string[] = [
 export const SEED_VERSION = 8;
 
 export function defaultPlan(profileId: string): Plan {
+  const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
     profileId,
     version: 1,
     name: 'Piano Silvia Cavaliere',
-    createdAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
     active: true,
     seedVersion: SEED_VERSION,
     targetKcal: 2504,
@@ -135,6 +137,47 @@ export function defaultPlan(profileId: string): Plan {
     frequencies: FREQUENCIES,
     seasons: SEASONS,
   };
+}
+
+/**
+ * Re-proportion the template's portions to a different daily energy target.
+ * Linear scaling is only a starting point: it gives each person numbers of
+ * their own size instead of someone else's, to be refined with a nutritionist.
+ * Options described in discrete units ("1 uovo", "4-5 fette") are left alone,
+ * so the grams and the text the user reads never disagree.
+ */
+export function scalePlanTo(plan: Plan, targetKcal: number): void {
+  const base = plan.targetKcal;
+  plan.targetKcal = targetKcal;
+  if (!base || base === targetKcal) return;
+  const k = targetKcal / base;
+  const lists: (SlotOption[] | undefined)[] = [
+    plan.glucidiAllenamento, plan.glucidiNonAllenamento, plan.proteine,
+    plan.colazioneProt, plan.colazioneCarb, plan.colazioneDolce,
+    plan.spuntinoPost, plan.spuntinoMattina, plan.spuntinoPomeriggio,
+  ];
+  for (const list of lists) {
+    for (const opt of list ?? []) {
+      if (!opt.grams || !GRAMS_RE.test(`${opt.label} ${opt.detail ?? ''}`)) continue;
+      opt.grams = roundGrams(opt.grams * k);
+      opt.label = scaleGramsInText(opt.label, k);
+      if (opt.detail) opt.detail = scaleGramsInText(opt.detail, k);
+      opt.macroSource = 'estimate';
+    }
+  }
+  plan.userEdited = true; // keep the personalised portions safe from the default re-seed
+  plan.updatedAt = new Date().toISOString();
+}
+
+const GRAMS_RE = /(\d+(?:[.,]\d+)?)\s*g\b/;
+
+function roundGrams(g: number): number {
+  return g >= 50 ? Math.round(g / 5) * 5 : Math.max(1, Math.round(g));
+}
+
+function scaleGramsInText(text: string, k: number): string {
+  return text.replace(new RegExp(GRAMS_RE, 'g'), (_m, n: string) =>
+    `${roundGrams(parseFloat(n.replace(',', '.')) * k)}g`);
 }
 
 // ---- Meal templates (built from the plan + day type) ----

@@ -99,6 +99,8 @@ export interface Plan {
   version: number;
   name: string;
   createdAt: string; // ISO
+  /** Last change, for cloud sync conflict resolution. */
+  updatedAt?: string; // ISO
   active: boolean;
   /** True once the user edits the plan in-app; prevents auto re-seed from code defaults. */
   userEdited?: boolean;
@@ -133,6 +135,14 @@ export interface Profile {
   sex?: Sex;
   birthDate?: string;
   heightM?: number;
+  /** Supabase auth user owning this profile; the app only ever shows its own account's profile. */
+  ownerUserId?: string;
+  /** Set when the first-run setup has been completed. */
+  onboardedAt?: string;
+  /** Activity multiplier used to estimate the daily energy target. */
+  activity?: number;
+  /** Personal PIN guarding the plan editor from accidental edits (not a security control). */
+  planPin?: string;
   createdAt: string;
   updatedAt: string;
 }

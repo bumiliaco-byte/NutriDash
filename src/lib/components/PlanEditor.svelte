@@ -3,9 +3,11 @@
   import { savePlan, createPlanVersion, activatePlan, listPlans } from '../db/db';
   import { ALT_PROT, MEAL_IDEAS } from '../data/plan';
 
-  let { profileId, plan, onChanged }: {
+  let { profileId, plan, pin: planPin, onChanged }: {
     profileId: string;
     plan: Plan;
+    /** Personal PIN chosen at setup; guards against accidental edits. */
+    pin?: string;
     onChanged: () => void;
   } = $props();
 
@@ -19,13 +21,15 @@
   let busy = $state(false);
 
   // Unlock is protected by a PIN to avoid accidental edits.
-  const PIN = '230977';
   let pinAsk = $state(false);
   let pinTry = $state('');
   let pinErr = $state(false);
-  function askPin() { pinAsk = true; pinTry = ''; pinErr = false; }
+  function askPin() {
+    if (!planPin) { startEdit(); return; }
+    pinAsk = true; pinTry = ''; pinErr = false;
+  }
   function submitPin() {
-    if (pinTry === PIN) { pinAsk = false; pinTry = ''; pinErr = false; startEdit(); }
+    if (pinTry === planPin) { pinAsk = false; pinTry = ''; pinErr = false; startEdit(); }
     else { pinErr = true; }
   }
 

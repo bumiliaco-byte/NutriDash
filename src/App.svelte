@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import type { DayLog, DayType, Plan } from './lib/types';
-  import { ensureBootstrap, getActivePlan, loadPlanIndex, pickProfileId, deleteDayLog, db } from './lib/db/db';
+  import type { DayLog, DayType, Plan, Profile } from './lib/types';
+  import { db, getActivePlan, loadPlanIndex, resolveProfileId, deleteDayLog } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
   import { mealsFor } from './lib/data/plan';
-  import { syncEnabled, sync } from './lib/sync/supabase';
+  import { syncEnabled, sync, currentEmail, currentUserId, onPasswordRecovery } from './lib/sync/supabase';
   import { downloadBackup, downloadCsv, importBackup } from './lib/backup';
   import { weekDays, logsInRange, tallyFrequencies, planIndexResolver } from './lib/stats';
   import MacroSummary from './lib/components/MacroSummary.svelte';
@@ -18,6 +18,9 @@
   import MeasurementsCard from './lib/components/MeasurementsCard.svelte';
   import SyncPanel from './lib/components/SyncPanel.svelte';
   import PlanEditor from './lib/components/PlanEditor.svelte';
+  import AuthGate from './lib/components/AuthGate.svelte';
+  import Onboarding from './lib/components/Onboarding.svelte';
+  import ProfileCard from './lib/components/ProfileCard.svelte';
 
   const DOW = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
   const MON = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
@@ -26,15 +29,21 @@
     { id: 'nonallenamento', label: 'Riposo', ic: '🛋️' },
   ];
 
-  let ready = $state(false);
+  /** loading → auth (sign in) → setup (first run) → app. */
+  let phase = $state<'loading' | 'auth' | 'setup' | 'app'>('loading');
+  let recovery = $state(false);
+  let account = $state<string | null>(null);
+  let uid = $state<string | null>(null);
   let pid = $state('');
+  let profile = $state<Profile | null>(null);
   let plan = $state<Plan | null>(null);
   let planIndex = $state<Map<string, Plan>>(new Map());
   let dateStr = $state(todayStr());
   let day = $state<DayLog | null>(null);
-  let profileName = $state('');
   let dataVersion = $state(0);
   let fileInput = $state<HTMLInputElement>();
+
+  const profileName = $derived(profile?.name ?? '');
 
   // UI preferences (persisted): compact view, dark theme, bold text.
   let dense = $state(localStorage.getItem('nd_dense') === '1');
@@ -93,14 +102,17 @@
     dataVersion++;
   }
 
+  async function onProfileChanged() {
+    profile = (await db.profiles.get(pid)) ?? profile;
+    dataVersion++;
+    scheduleAutoSync();
+  }
+
   // After a cloud sync, converge on the profile that now holds the data.
   async function onSynced() {
-    const best = await pickProfileId();
-    if (best && best !== pid) {
-      pid = best;
-      const p = await db.profiles.get(pid);
-      profileName = p?.name ?? '';
-    }
+    const best = await resolveProfileId(uid);
+    if (best && best !== pid) pid = best;
+    profile = (await db.profiles.get(pid)) ?? profile;
     await reloadPlan();
     await reloadDay();
     dataVersion++;
@@ -202,20 +214,78 @@
     if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) shiftDay(dx < 0 ? 1 : -1);
   }
 
-  onMount(async () => {
-    pid = await ensureBootstrap();
+  /** Give a slow/absent network a bounded chance instead of blocking the first run. */
+  function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
+    return Promise.race([p, new Promise<null>((r) => setTimeout(() => r(null), ms))]);
+  }
+
+  /** Open the diary for the signed-in account, or send it to the first-run setup. */
+  async function boot() {
+    phase = 'loading';
+    uid = await currentUserId();
+    pid = await resolveProfileId(uid);
+    if (!pid && uid) {
+      // Nothing local for this account yet: it may live in the cloud (other device).
+      try { await withTimeout(sync(), 12000); } catch { /* offline: fall through to setup */ }
+      pid = await resolveProfileId(uid);
+    }
+    if (!pid) { phase = 'setup'; return; }
+    profile = (await db.profiles.get(pid)) ?? null;
     await reloadPlan();
-    const p = await db.profiles.get(pid);
-    profileName = p?.name ?? '';
     await reloadDay();
-    ready = true;
+    phase = 'app';
     await scrollToCurrentMeal();
+  }
+
+  async function onSignedIn() {
+    account = await currentEmail();
+    recovery = false;
+    await boot();
+  }
+
+  function onSignedOut() {
+    account = null;
+    uid = null;
+    pid = '';
+    profile = null;
+    plan = null;
+    day = null;
+    phase = 'auth';
+  }
+
+  async function onSetupDone(newPid: string) {
+    pid = newPid;
+    profile = (await db.profiles.get(newPid)) ?? null;
+    await reloadPlan();
+    await reloadDay();
+    phase = 'app';
+    scheduleAutoSync();
+  }
+
+  onMount(async () => {
+    if (!syncEnabled()) {
+      // Local-only build (no Supabase keys): keep working without an account.
+      await boot();
+      if (!pid) phase = 'setup';
+    } else {
+      onPasswordRecovery(() => { recovery = true; phase = 'auth'; });
+      account = await currentEmail();
+      if (!account) phase = 'auth';
+      else await boot();
+    }
     // Auto-sync when returning to the app (foreground / tab focus).
     document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleAutoSync(); });
     window.addEventListener('focus', scheduleAutoSync);
   });
 </script>
 
+{#if phase === 'auth'}
+  <AuthGate {recovery} onDone={onSignedIn} />
+{:else if phase === 'setup'}
+  <Onboarding ownerUserId={uid} email={account} onDone={onSetupDone} />
+{:else if phase === 'loading'}
+  <div class="gate"><div class="gatecard"><div class="gatelogo">🥗</div><p class="gatesub">Caricamento…</p></div></div>
+{:else}
 <header class="top">
   <div class="wrap">
     <div class="brand">
@@ -263,7 +333,7 @@
 </header>
 
 <div class="wrap" role="group" ontouchstart={onTouchStart} ontouchend={onTouchEnd}>
-  {#if ready && day && plan && dayPlan}
+  {#if day && plan && dayPlan}
     <MacroSummary {day} plan={dayPlan} />
     <DayProgress {day} plan={dayPlan} />
     <WaterCard bind:day {save} />
@@ -278,12 +348,13 @@
     <ShoppingList profileId={pid} {dateStr} {plan} {planIndex} {dataVersion} />
     <MonthHistory profileId={pid} {dateStr} {plan} {planIndex} {dataVersion} onPick={(d) => { dateStr = d; reloadDay(); }} />
     <MeasurementsCard profileId={pid} {dataVersion} onChanged={scheduleAutoSync} />
-    <SyncPanel {onSynced} />
+    {#if profile}<ProfileCard {profile} onChanged={onProfileChanged} />{/if}
+    <SyncPanel {onSynced} {onSignedOut} />
 
-    <PlanEditor profileId={pid} {plan} onChanged={onPlanChanged} />
+    <PlanEditor profileId={pid} {plan} pin={profile?.planPin} onChanged={onPlanChanged} />
 
     <div class="toolbar">
-      <button class="tbtn" onclick={() => downloadBackup()}><span class="ic">⬇️</span> Esporta backup</button>
+      <button class="tbtn" onclick={() => downloadBackup(pid)}><span class="ic">⬇️</span> Esporta backup</button>
       <button class="tbtn" onclick={() => fileInput?.click()}><span class="ic">⬆️</span> Importa backup</button>
       <button class="tbtn" onclick={() => plan && downloadCsv(pid, plan)}><span class="ic">🧾</span> Esporta CSV</button>
     </div>
@@ -297,3 +368,4 @@
     <div class="foot" style="margin-top:40px">Caricamento…</div>
   {/if}
 </div>
+{/if}

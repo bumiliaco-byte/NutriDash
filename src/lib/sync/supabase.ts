@@ -24,6 +24,13 @@ export async function currentEmail(): Promise<string | null> {
   return data.session?.user.email ?? null;
 }
 
+/** Auth user id of the signed-in account, or null when local-only. */
+export async function currentUserId(): Promise<string | null> {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
 export async function signIn(email: string, password: string): Promise<void> {
   if (!supabase) throw new Error('Sync non configurata');
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -46,6 +53,30 @@ export async function signOut(): Promise<void> {
 export function onAuthChange(cb: (session: Session | null) => void): () => void {
   if (!supabase) return () => {};
   const { data } = supabase.auth.onAuthStateChange((_e, session) => cb(session));
+  return () => data.subscription.unsubscribe();
+}
+
+/** Send the "reset password" email, pointing back at this app. */
+export async function resetPassword(email: string): Promise<void> {
+  if (!supabase) throw new Error('Sync non configurata');
+  const redirectTo = new URL(import.meta.env.BASE_URL, window.location.origin).href;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) throw error;
+}
+
+/** Set a new password for the signed-in (or recovering) user. */
+export async function updatePassword(password: string): Promise<void> {
+  if (!supabase) throw new Error('Sync non configurata');
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
+
+/** Fires when the user lands on the app from a password-recovery email. */
+export function onPasswordRecovery(cb: () => void): () => void {
+  if (!supabase) return () => {};
+  const { data } = supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') cb();
+  });
   return () => data.subscription.unsubscribe();
 }
 
@@ -121,34 +152,64 @@ async function pushTombstones(sb: SupabaseClient, userId: string): Promise<void>
   if (error && !isMissingTombstones(error)) throw error;
 }
 
-async function pullStore(sb: SupabaseClient, userId: string, table: string, local: Table<{ id: string; updatedAt?: string }, string>): Promise<number> {
+async function pullStore(
+  sb: SupabaseClient,
+  userId: string,
+  table: string,
+  local: Table<{ id: string; updatedAt?: string }, string>,
+  owned?: Set<string>,
+): Promise<number> {
   const { data, error } = await sb.from(table).select('id,updated_at,data').eq('user_id', userId);
   if (error) throw error;
   let pulled = 0;
   for (const row of (data ?? []) as Row[]) {
-    const remote = row.data;
-    const remoteTs = row.updated_at ? new Date(row.updated_at).getTime() : ts(remote);
+    const remote = row.data as { updatedAt?: string; ownerUserId?: string; profileId?: string };
+    // Never take in someone else's records, even if they ended up in this account.
+    if (table === 'profiles') {
+      if (remote.ownerUserId && remote.ownerUserId !== userId) continue;
+    } else if (owned && !owned.has(remote.profileId ?? '')) {
+      continue;
+    }
+    // The record's own timestamp wins; the row's is only a fallback for legacy rows.
+    const remoteTs = ts(remote) || (row.updated_at ? new Date(row.updated_at).getTime() : 0);
     // Don't resurrect a record that was deleted at/after this version.
     const tomb = await db.tombstones.get(`${table}:${row.id}`);
     if (tomb && new Date(tomb.deletedAt).getTime() >= remoteTs) continue;
     const existing = await local.get(row.id);
     if (!existing || remoteTs > ts(existing)) {
-      await local.put(JSON.parse(JSON.stringify(remote)));
+      const record = JSON.parse(JSON.stringify(remote));
+      // Rows written before ownership existed still belong to the account that stores them.
+      if (table === 'profiles' && !record.ownerUserId) record.ownerUserId = userId;
+      await local.put(record);
       pulled++;
     }
   }
   return pulled;
 }
 
-async function pushStore(sb: SupabaseClient, userId: string, table: string, local: Table<{ id: string; updatedAt?: string }, string>): Promise<number> {
-  const all = await local.toArray();
+/** Profiles belonging to the signed-in account: nothing else may leave this device. */
+async function ownedProfileIds(userId: string): Promise<Set<string>> {
+  const profiles = await db.profiles.toArray();
+  return new Set(profiles.filter(p => p.ownerUserId === userId).map(p => p.id));
+}
+
+async function pushStore(
+  sb: SupabaseClient,
+  userId: string,
+  table: string,
+  local: Table<{ id: string; updatedAt?: string }, string>,
+  owned: Set<string>,
+): Promise<number> {
+  const all = (await local.toArray()).filter((r) => {
+    const rec = r as { id: string; profileId?: string };
+    return owned.has(table === 'profiles' ? rec.id : rec.profileId ?? '');
+  });
   if (!all.length) return 0;
-  const rows = all.map((r) => ({
-    id: r.id,
-    user_id: userId,
-    updated_at: r.updatedAt ?? new Date().toISOString(),
-    data: r,
-  }));
+  // Stamp the timestamp inside the record too, so every device compares the same value.
+  const rows = all.map((r) => {
+    const updatedAt = r.updatedAt ?? new Date().toISOString();
+    return { id: r.id, user_id: userId, updated_at: updatedAt, data: { ...r, updatedAt } };
+  });
   const { error } = await sb.from(table).upsert(rows, { onConflict: 'id' });
   if (error) throw error;
   return rows.length;
@@ -168,8 +229,11 @@ export async function sync(): Promise<{ pushed: number; pulled: number } | null>
   let pushed = 0;
   let pulled = 0;
   pulled += await pullTombstones(supabase, userId);
-  for (const s of STORES) pulled += await pullStore(supabase, userId, s.table, s.local());
+  // Profiles first: they decide which of the remaining records belong to this account.
+  pulled += await pullStore(supabase, userId, 'profiles', db.profiles);
+  const owned = await ownedProfileIds(userId);
+  for (const s of STORES.slice(1)) pulled += await pullStore(supabase, userId, s.table, s.local(), owned);
   await pushTombstones(supabase, userId);
-  for (const s of STORES) pushed += await pushStore(supabase, userId, s.table, s.local());
+  for (const s of STORES) pushed += await pushStore(supabase, userId, s.table, s.local(), owned);
   return { pushed, pulled };
 }

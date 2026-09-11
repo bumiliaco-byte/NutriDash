@@ -192,6 +192,40 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .prefs .pf:hover{background:rgba(255,255,255,.28)}
 .prefs .pf:active{transform:scale(.96)}
 
+/* schermate a tutta pagina: accesso e primo avvio */
+.gate{min-height:100dvh;display:flex;align-items:center;justify-content:center;
+  padding:calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  background:linear-gradient(135deg,var(--green),var(--green-d))}
+.gatecard{width:100%;max-width:360px;background:var(--card);color:var(--ink);border-radius:20px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);padding:26px 22px;text-align:center}
+.gatecard.wide{max-width:520px}
+.gatelogo{font-size:2.6rem;line-height:1}
+.gatecard h1{margin:6px 0 4px;font-size:1.5rem;color:var(--green-d)}
+.gatesub{margin:0 0 16px;font-size:.86rem;color:var(--muted);line-height:1.45}
+.gatecard form{display:flex;flex-direction:column;gap:9px}
+.gatecard .synclink{display:block;margin:8px auto 0}
+.gatefoot{margin-top:16px;font-size:.72rem;color:var(--muted);line-height:1.5;text-align:left}
+.obform{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;text-align:left;margin-bottom:14px}
+.obform label,.obfield{display:flex;flex-direction:column;gap:5px;font-size:.72rem;font-weight:700;color:var(--muted)}
+.obform .ob2{grid-column:1 / -1}
+.obseg{display:flex;gap:8px}
+.obseg button{flex:1;background:var(--card);border:1.5px solid var(--line);color:var(--ink);border-radius:10px;
+  padding:9px;font-size:.84rem;font-weight:700;cursor:pointer}
+.obseg button.on{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
+.obacts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.obact{background:var(--card);border:1.5px solid var(--line);color:var(--ink);border-radius:10px;
+  padding:8px 9px;text-align:left;cursor:pointer;line-height:1.25}
+.obact b{display:block;font-size:.8rem}
+.obact small{color:var(--muted);font-size:.68rem}
+.obact.on{background:var(--green-l);border-color:var(--green)}
+.obact.on b{color:var(--green-d)}
+.obcalc{background:var(--soft);border-radius:11px;padding:10px 12px;font-size:.78rem;color:var(--muted);line-height:1.5}
+.obcalc b{color:var(--green-d)}
+@media (max-width:420px){
+  .obform{grid-template-columns:1fr}
+  .obacts{grid-template-columns:1fr}
+}
+
 /* separatore "+" tra i pasti */
 .mealsep{display:flex;align-items:center;margin:4px 0}
 .mealsep::before,.mealsep::after{content:"";flex:1;height:1.5px;background:var(--line)}
@@ -228,6 +262,8 @@ body.dense .mealsep span{width:26px;height:26px;font-size:1.05rem}
 .measform label{display:flex;flex-direction:column;gap:4px;font-size:.72rem;font-weight:700;color:var(--muted)}
 .measform input{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.9rem;
   background:#fff;color:var(--ink);font-family:inherit}
+.measform select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.9rem;
+  background:#fff;color:var(--ink);font-family:inherit}
 .measform input:focus{outline:none;border-color:var(--green)}
 .measbmi{margin-top:9px;font-size:.82rem;color:var(--muted)}
 .measbmi b{color:var(--green-d)}
@@ -245,6 +281,7 @@ body.dense .mealsep span{width:26px;height:26px;font-size:1.05rem}
 .measrow .mdel{margin-left:auto;background:none;border:none;color:var(--muted);font-size:.9rem;cursor:pointer;flex:none;padding:2px 4px}
 .measempty{margin-top:12px;font-size:.8rem;color:var(--muted);text-align:center;line-height:1.5}
 body.dark .measform input{background:#12201a}
+body.dark .measform select{background:#12201a}
 body.dark .measform input:focus{background:#16261f}
 body.dark .measrow .mdelta{background:#26332d}
 

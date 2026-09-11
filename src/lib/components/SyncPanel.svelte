@@ -1,16 +1,14 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { syncEnabled, currentEmail, signIn, signUp, signOut, onAuthChange, sync } from '../sync/supabase';
+  import { syncEnabled, currentEmail, signOut, onAuthChange, sync } from '../sync/supabase';
+  import { wipeLocalData } from '../db/db';
 
-  let { onSynced }: { onSynced?: () => void } = $props();
+  let { onSynced, onSignedOut }: { onSynced?: () => void; onSignedOut?: () => void } = $props();
 
-  let email = $state('');
-  let password = $state('');
   let account = $state<string | null>(null);
   let busy = $state(false);
   let msg = $state('');
   let err = $state('');
-  let mode = $state<'in' | 'up'>('in');
   let unsub: () => void = () => {};
 
   const configured = syncEnabled();
@@ -26,19 +24,15 @@
   });
   onDestroy(() => unsub());
 
-  async function doSync() {
-    const res = await sync();
-    if (res) {
-      msg = `Sincronizzato: ${res.pulled} scaricati, ${res.pushed} inviati`;
-      onSynced?.();
-    }
-  }
-
   async function runSync() {
     if (busy) return;
     busy = true; err = ''; msg = '';
     try {
-      await doSync();
+      const res = await sync();
+      if (res) {
+        msg = `Sincronizzato: ${res.pulled} scaricati, ${res.pushed} inviati`;
+        onSynced?.();
+      }
     } catch (e) {
       err = 'Sync non riuscita: ' + (e instanceof Error ? e.message : 'errore');
     } finally {
@@ -46,45 +40,24 @@
     }
   }
 
-  async function submit() {
-    busy = true; err = ''; msg = '';
+  async function logout(wipe: boolean) {
+    if (wipe && !confirm('Uscire e cancellare i dati da questo dispositivo? Restano nel cloud e li ritrovi al prossimo accesso.')) return;
+    busy = true;
     try {
-      if (mode === 'up') {
-        const { needsConfirm } = await signUp(email.trim(), password);
-        msg = needsConfirm ? 'Registrato. Controlla la mail per confermare, poi accedi.' : 'Registrato e connesso.';
-      } else {
-        await signIn(email.trim(), password);
-      }
-      password = '';
-      // Sync immediately after the user action (don't wait for the auth-change event).
-      account = await currentEmail();
-      if (account) await doSync();
-    } catch (e) {
-      err = messageFor(e);
-    } finally {
-      busy = false;
-    }
-  }
-
-  function messageFor(e: unknown): string {
-    const m = e instanceof Error ? e.message : String(e);
-    if (/Invalid login/i.test(m)) return 'Email o password non corretti.';
-    if (/already registered/i.test(m)) return 'Email già registrata: accedi.';
-    if (/at least 6/i.test(m)) return 'La password deve avere almeno 6 caratteri.';
-    return m;
-  }
-
-  async function logout() {
+      if (!wipe) await sync(); // push pending changes before leaving
+    } catch { /* offline: local data stays and will sync at the next login */ }
     await signOut();
+    if (wipe) await wipeLocalData();
+    busy = false;
     account = null;
-    msg = 'Disconnesso (i dati restano sul dispositivo).';
+    onSignedOut?.();
   }
 </script>
 
 <div class="card">
   <div class="hd">
     <span class="ic">☁️</span>
-    <div class="tt">Sync cloud<small>Dati sincronizzati tra i tuoi dispositivi</small></div>
+    <div class="tt">Il tuo account<small>Dati sincronizzati tra i tuoi dispositivi</small></div>
     {#if configured}
       <span class="badge" class:done={!!account} class:todo={!account}>{account ? 'Attiva' : 'Off'}</span>
     {/if}
@@ -100,19 +73,9 @@
         <div class="syncwho">Connesso come <b>{account}</b></div>
         <div class="syncbtns">
           <button class="syncmain" onclick={runSync} disabled={busy}>{busy ? 'Sincronizzo…' : '🔄 Sincronizza ora'}</button>
-          <button class="syncghost" onclick={logout} disabled={busy}>Esci</button>
+          <button class="syncghost" onclick={() => logout(false)} disabled={busy}>Esci</button>
         </div>
-      </div>
-    {:else}
-      <div class="syncform">
-        <input class="syncinput" type="email" autocomplete="username" placeholder="Email" bind:value={email} />
-        <input class="syncinput" type="password" autocomplete="current-password" placeholder="Password (min 6)" bind:value={password} />
-        <button class="syncmain" onclick={submit} disabled={busy || !email || !password}>
-          {busy ? '…' : mode === 'up' ? 'Registrati' : 'Accedi'}
-        </button>
-        <button class="synclink" onclick={() => { mode = mode === 'up' ? 'in' : 'up'; err = ''; msg = ''; }}>
-          {mode === 'up' ? 'Hai già un account? Accedi' : 'Primo accesso? Registrati'}
-        </button>
+        <button class="synclink" onclick={() => logout(true)} disabled={busy}>Esci e cancella i dati da questo dispositivo</button>
       </div>
     {/if}
     {#if msg}<div class="syncmsg ok">{msg}</div>{/if}

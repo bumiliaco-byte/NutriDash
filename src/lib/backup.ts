@@ -13,20 +13,30 @@ interface Backup {
   measurements: Measurement[];
 }
 
-/** Serialise the whole local database to a JSON backup object. */
-export async function exportBackup(): Promise<Backup> {
+/** Serialise the local database to a JSON backup object (one profile when given). */
+export async function exportBackup(profileId?: string): Promise<Backup> {
   const [profiles, plans, dayLogs, measurements] = await Promise.all([
     db.profiles.toArray(),
     db.plans.toArray(),
     db.dayLogs.toArray(),
     db.measurements.toArray(),
   ]);
-  return { app: 'nutridash', version: 1, exportedAt: new Date().toISOString(), profiles, plans, dayLogs, measurements };
+  const mine = <T extends { profileId: string }>(rows: T[]) =>
+    profileId ? rows.filter(r => r.profileId === profileId) : rows;
+  return {
+    app: 'nutridash',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    profiles: profileId ? profiles.filter(p => p.id === profileId) : profiles,
+    plans: mine(plans),
+    dayLogs: mine(dayLogs),
+    measurements: mine(measurements),
+  };
 }
 
 /** Trigger a download of the current data as a JSON file. */
-export async function downloadBackup(): Promise<void> {
-  const data = await exportBackup();
+export async function downloadBackup(profileId?: string): Promise<void> {
+  const data = await exportBackup(profileId);
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
