@@ -79,6 +79,8 @@ export interface FrequencyRule {
   min?: number;
   /** Maximum per week (optional). When absent the entry is informational (no cap). */
   max?: number;
+  /** Only a hard cap blocks the option in the diary; the others are guidance ranges. */
+  hard?: boolean;
 }
 
 /** Seasonal produce for a month (0-based month index). */
@@ -115,14 +117,20 @@ export interface Plan {
   /** Breakfast options (protein base + carb source). */
   colazioneProt?: SlotOption[];
   colazioneCarb?: SlotOption[];
+  /** Larger carb portions for the breakfast eaten before the workout. */
+  colazioneCarbPre?: SlotOption[];
   /** Breakfast sweet/fruit add-on (marmellata / miele / frutto). */
   colazioneDolce?: SlotOption[];
+  /** Pre-workout mini-meal, for the "colazione spezzata" training day. */
+  preWorkout?: SlotOption[];
   /** Snack options. */
   spuntinoPost?: SlotOption[];
   spuntinoMattina?: SlotOption[];
   spuntinoPomeriggio?: SlotOption[];
   /** Vegetable serving (single, editable macros). */
   verdura?: SlotOption;
+  /** Olive oil used at lunch/dinner (single, editable macros). */
+  olio?: SlotOption;
   frequencies: FrequencyRule[];
   seasons: Season[];
   /** Serialised meal templates keyed by day type is derived in code. */
@@ -179,6 +187,8 @@ export interface DayLog {
   planVersion: number;
   date: string; // YYYY-MM-DD
   dayType: DayType;
+  /** Training day only: breakfast split around the workout (pre-workout + smaller breakfast). */
+  colazioneSpezzata?: boolean;
   water: number; // glasses
   /** Selected choice per `${mealId}.${slotId}` -> optionId. */
   sel: Record<string, string>;

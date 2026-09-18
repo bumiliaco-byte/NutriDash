@@ -38,6 +38,7 @@ export const FOODS: Record<string, Food> = {
   albume: { id: 'albume', label: 'Albume', category: 'proteina', per100: { kcal: 48, carbs: 0.7, protein: 11, fat: 0.2 } },
   cereali: { id: 'cereali', label: 'Cereali', category: 'glucide', per100: { kcal: 360, carbs: 60, protein: 12, fat: 6 } },
   fette: { id: 'fette', label: 'Fette biscottate', category: 'glucide', per100: { kcal: 410, carbs: 82, protein: 11, fat: 6 } },
+  biscotti: { id: 'biscotti', label: 'Biscotti secchi', category: 'glucide', per100: { kcal: 416, carbs: 82.3, protein: 7.1, fat: 8.3 } },
   marmellata: { id: 'marmellata', label: 'Marmellata', category: 'glucide', per100: { kcal: 250, carbs: 60, protein: 0.5, fat: 0.1 } },
   miele: { id: 'miele', label: 'Miele', category: 'glucide', per100: { kcal: 304, carbs: 80, protein: 0.3, fat: 0 } },
   fruttoDolce: { id: 'fruttoDolce', label: 'Frutto (frutti di bosco / lamponi / mezza banana)', category: 'frutta', per100: { kcal: 55, carbs: 12, protein: 1, fat: 0.3 } },

@@ -22,6 +22,7 @@
     const f = plan.frequencies.find(x => x.key === key);
     if (!f) return 'ok';
     if (f.max != null && n > f.max) return 'over';
+    if (f.min != null && n < f.min) return 'low';
     return 'ok';
   }
   function pct(key: string, n: number): number {
@@ -37,6 +38,7 @@
   function target(key: string): string {
     const f = plan.frequencies.find(x => x.key === key);
     if (!f || f.max == null) return 'questa settimana';
+    if (f.min != null && f.min !== f.max) return `${f.min}–${f.max}× / sett`;
     return `max ${f.max}× / sett`;
   }
 </script>

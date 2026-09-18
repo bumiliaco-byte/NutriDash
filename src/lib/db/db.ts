@@ -193,11 +193,20 @@ export async function getActivePlan(profileId: string): Promise<Plan> {
       await db.plans.update(active.id, { updatedAt: active.createdAt });
     }
     if (active.userEdited && active.seedVersion !== SEED_VERSION) {
+      // Personalised plans keep their portions; only the parts the nutritionist
+      // added or changed wholesale are taken over, resized to this person's target.
+      const scaled = defaultPlan(profileId);
+      if (active.targetKcal) scalePlanTo(scaled, active.targetKcal);
       const refreshed: Plan = {
         ...active,
         glucidiAllenamento: replaceOption(active.glucidiAllenamento, def.glucidiAllenamento, 'pastaPane')!,
         glucidiNonAllenamento: replaceOption(active.glucidiNonAllenamento, def.glucidiNonAllenamento, 'pastaPane')!,
         colazioneProt: replaceOption(active.colazioneProt, def.colazioneProt, 'yogurt'),
+        colazioneCarbPre: active.colazioneCarbPre ?? scaled.colazioneCarbPre,
+        preWorkout: active.preWorkout ?? scaled.preWorkout,
+        olio: active.olio ?? scaled.olio,
+        frequencies: def.frequencies,
+        seasons: def.seasons,
         seedVersion: SEED_VERSION,
         updatedAt: new Date().toISOString(),
       };
@@ -214,11 +223,14 @@ export async function getActivePlan(profileId: string): Promise<Plan> {
         proteine: def.proteine,
         colazioneProt: def.colazioneProt,
         colazioneCarb: def.colazioneCarb,
+        colazioneCarbPre: def.colazioneCarbPre,
         colazioneDolce: def.colazioneDolce,
+        preWorkout: def.preWorkout,
         spuntinoPost: def.spuntinoPost,
         spuntinoMattina: def.spuntinoMattina,
         spuntinoPomeriggio: def.spuntinoPomeriggio,
         verdura: def.verdura,
+        olio: def.olio,
         frequencies: def.frequencies,
         seasons: def.seasons,
         seedVersion: SEED_VERSION,

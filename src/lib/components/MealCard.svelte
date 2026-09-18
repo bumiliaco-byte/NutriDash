@@ -84,7 +84,8 @@
   function capReached(opt: SlotOption): boolean {
     if (!opt.freq) return false;
     const f = plan.frequencies.find((x) => x.key === opt.freq);
-    if (f?.max == null) return false;
+    // Only the nutritionist's hard limits block a choice; ranges stay as guidance.
+    if (!f?.hard || f.max == null) return false;
     return (freqCounts[opt.freq] ?? 0) >= f.max;
   }
   /** Disable an option when its cap is reached, unless it's the one already selected here. */

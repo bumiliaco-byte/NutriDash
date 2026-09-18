@@ -23,10 +23,6 @@ function add(a: Macros, b: Macros | null): Macros {
 
 /** Macros contributed by a check slot (e.g. verdura, olio EVO). */
 export function slotMacros(slot: Slot): Macros | null {
-  if (slot.id === 'olio') {
-    const grams = slot.grams ?? (slot.detail?.includes('40') ? 40 : 30);
-    return macrosFor('olio', grams);
-  }
   if (!slot.grams) return null;
   if (slot.per100) {
     const k = slot.grams / 100;

@@ -29,43 +29,46 @@ export const PROTEINE: SlotOption[] = [
 ];
 
 export const GLUC_ALL: SlotOption[] = [
+  { id: 'pasta', label: 'Pasta normale o integrale', detail: '120g', foodId: 'pasta', grams: 120 },
+  { id: 'riso', label: 'Riso', detail: '120g', foodId: 'riso', grams: 120 },
+  { id: 'pane', label: 'Pane', detail: '150g', foodId: 'pane', grams: 150 },
+  { id: 'pastaPane', label: 'Pasta + pane', detail: '100g + 30g', grams: 130, per100: { kcal: 335, carbs: 68.08, protein: 10.54, fat: 1.38 } },
+  { id: 'patate', label: 'Patate', detail: '550g', foodId: 'patate', grams: 550 },
+  { id: 'farro', label: 'Farro / orzo / quinoa', detail: '120g', foodId: 'farro', grams: 120 },
+  { id: 'crostini', label: 'Crostini', detail: "75g · Buitoni / Fiori d'Acqua Mulino Bianco", foodId: 'crostini', grams: 75 },
+];
+
+export const GLUC_NON: SlotOption[] = [
   { id: 'pasta', label: 'Pasta normale o integrale', detail: '100g', foodId: 'pasta', grams: 100 },
   { id: 'riso', label: 'Riso', detail: '100g', foodId: 'riso', grams: 100 },
   { id: 'pane', label: 'Pane', detail: '130g', foodId: 'pane', grams: 130 },
   { id: 'pastaPane', label: 'Pasta + pane', detail: '80g + 30g', grams: 110, per100: { kcal: 331.73, carbs: 67.36, protein: 10.45, fat: 1.36 } },
   { id: 'patate', label: 'Patate', detail: '460g', foodId: 'patate', grams: 460 },
-  { id: 'farro', label: 'Farro / orzo / quinoa', detail: '80g', foodId: 'farro', grams: 80 },
-  { id: 'crostini', label: 'Crostini', detail: "60–70g · Buitoni / Fiori d'Acqua Mulino Bianco", foodId: 'crostini', grams: 65 },
+  { id: 'farro', label: 'Farro / orzo / quinoa', detail: '100g', foodId: 'farro', grams: 100 },
+  { id: 'crostini', label: 'Crostini', detail: "65g · Buitoni / Fiori d'Acqua Mulino Bianco", foodId: 'crostini', grams: 65 },
 ];
 
-export const GLUC_NON: SlotOption[] = [
-  { id: 'pasta', label: 'Pasta normale o integrale', detail: '80g', foodId: 'pasta', grams: 80 },
-  { id: 'riso', label: 'Riso', detail: '80g', foodId: 'riso', grams: 80 },
-  { id: 'pane', label: 'Pane', detail: '100g', foodId: 'pane', grams: 100 },
-  { id: 'pastaPane', label: 'Pasta + pane', detail: '60g + 30g', grams: 90, per100: { kcal: 327, carbs: 66.33, protein: 10.33, fat: 1.33 } },
-  { id: 'patate', label: 'Patate', detail: '370g', foodId: 'patate', grams: 370 },
-  { id: 'farro', label: 'Farro / orzo / quinoa', detail: '80g', foodId: 'farro', grams: 80 },
-  { id: 'crostini', label: 'Crostini', detail: "50g · Buitoni / Fiori d'Acqua Mulino Bianco", foodId: 'crostini', grams: 50 },
-];
-
+// Ranges come from the "CONSIGLI" section of the plan; only the portions the
+// nutritionist marked "max 1 volta a settimana" are enforced as hard caps.
 export const FREQUENCIES: FrequencyRule[] = [
-  { key: 'pesce', label: 'Pesce' },
-  { key: 'carneBianca', label: 'Carne bianca' },
-  { key: 'carneRossa', label: 'Carne rossa', max: 1 },
-  { key: 'salumi', label: 'Salumi / affettati', max: 1 },
-  { key: 'parmigiano', label: 'Parmigiano (spuntino)', max: 3 },
-  { key: 'formFreschi', label: 'Formaggi freschi' },
+  { key: 'pesce', label: 'Pesce', min: 2, max: 3 },
+  { key: 'carneBianca', label: 'Carne bianca', min: 2, max: 3 },
+  { key: 'carneRossa', label: 'Carne rossa', max: 1, hard: true },
+  { key: 'salumi', label: 'Salumi / affettati', min: 1, max: 2, hard: true },
+  { key: 'parmigiano', label: 'Parmigiano (spuntino)' },
+  { key: 'formFreschi', label: 'Formaggi freschi', min: 1, max: 2 },
   { key: 'formStag', label: 'Formaggi stagionati' },
-  { key: 'uova', label: 'Uova (pasto)' },
-  { key: 'legumi', label: 'Legumi' },
+  { key: 'uova', label: 'Uova (pasto)', max: 2 },
+  { key: 'legumi', label: 'Legumi', min: 3, max: 4 },
   { key: 'vegetale', label: 'Proteine vegetali (tofu/tempeh)' },
-  { key: 'piattoUnico', label: 'Piatto unico' },
-  { key: 'pastolibero', label: 'Pasto libero', max: 1 },
+  { key: 'piattoUnico', label: 'Piatto unico', max: 2 },
+  { key: 'pastolibero', label: 'Pasto libero', max: 1, hard: true },
 ];
 
 export const SEASONS: Season[] = [
-  { month: 6, label: 'Luglio', frutta: 'Anguria, melone, pesche, nettarine, albicocche, fichi, prugne, mirtilli', verdura: 'Melanzane, peperoni, pomodori, cetrioli, zucchine, fagiolini, lattuga' },
-  { month: 7, label: 'Agosto', frutta: 'Anguria, melone, fichi, uva precoce, pesche, prugne, more, lamponi', verdura: 'Pomodori, melanzane, peperoni, cetrioli, zucchine, fagiolini, rucola, radicchio' },
+  { month: 8, label: 'Settembre', frutta: 'Uva, fichi, pere, mele, prugne, pesche, more, lamponi, mirtilli', verdura: 'Pomodori, melanzane, peperoni, zucchine, fagiolini, cetrioli, lattuga, rucola, radicchio' },
+  { month: 9, label: 'Ottobre', frutta: 'Mele, pere, uva, fichi, cachi, kiwi, melagrane, castagne', verdura: 'Zucca, cavolfiore, broccoli, finocchi, bietole, spinaci, radicchio, porri, carote' },
+  { month: 10, label: 'Novembre', frutta: 'Mele, pere, cachi, kiwi, melagrane, castagne, mandarini, arance, clementine', verdura: 'Zucca, cavolfiore, broccoli, finocchi, spinaci, bietole, porri, carote, verza, radicchio' },
 ];
 
 /** Weekday protein rotation hint (0 = Sunday). */
@@ -110,7 +113,7 @@ export const MEAL_IDEAS: string[] = [
 
 /** Build the default (V1) plan for a profile. */
 /** Bump when the plan's structural content changes so stored plans re-align once. */
-export const SEED_VERSION = 8;
+export const SEED_VERSION = 9;
 
 export function defaultPlan(profileId: string): Plan {
   const now = new Date().toISOString();
@@ -129,11 +132,14 @@ export function defaultPlan(profileId: string): Plan {
     proteine: withMacros(PROTEINE),
     colazioneProt: withMacros(COLAZIONE_OPTS),
     colazioneCarb: withMacros(COLAZIONE_CARBS),
+    colazioneCarbPre: withMacros(COLAZIONE_CARBS_PRE),
     colazioneDolce: withMacros(COLAZIONE_DOLCE),
+    preWorkout: withMacros(PRE_WORKOUT_OPTS),
     spuntinoPost: withMacros(SP_POST_OPTS),
     spuntinoMattina: withMacros(SP_MATT_OPTS),
     spuntinoPomeriggio: withMacros(SP_POM_OPTS),
     verdura: { ...VERDURA, per100: VERDURA.per100 ?? FOODS[VERDURA.foodId!]?.per100, macroSource: 'estimate' },
+    olio: { ...OLIO, macroSource: 'estimate' },
     frequencies: FREQUENCIES,
     seasons: SEASONS,
   };
@@ -153,8 +159,9 @@ export function scalePlanTo(plan: Plan, targetKcal: number): void {
   const k = targetKcal / base;
   const lists: (SlotOption[] | undefined)[] = [
     plan.glucidiAllenamento, plan.glucidiNonAllenamento, plan.proteine,
-    plan.colazioneProt, plan.colazioneCarb, plan.colazioneDolce,
-    plan.spuntinoPost, plan.spuntinoMattina, plan.spuntinoPomeriggio,
+    plan.colazioneProt, plan.colazioneCarb, plan.colazioneCarbPre, plan.colazioneDolce,
+    plan.preWorkout, plan.spuntinoPost, plan.spuntinoMattina, plan.spuntinoPomeriggio,
+    plan.olio ? [plan.olio] : undefined,
   ];
   for (const list of lists) {
     for (const opt of list ?? []) {
@@ -186,17 +193,32 @@ const COLAZIONE_OPTS: SlotOption[] = [
   { id: 'yogurt', label: 'Yogurt greco', detail: 'vasetto 150g · valori da etichetta', foodId: 'yogurtGreco', grams: 150 },
   { id: 'ricotta', label: 'Ricotta light', detail: '50g · mezza porzione', foodId: 'ricottaLight', grams: 50 },
   { id: 'uovo', label: 'Uovo strapazzato', detail: '1 uovo', foodId: 'uova', grams: 50 },
+  { id: 'uovoAlbume', label: 'Uovo + albume', detail: '1 uovo + 50g di albume · max 3 / sett', grams: 100, per100: { kcal: 88, carbs: 0.65, protein: 11.7, fat: 4.45 } },
   { id: 'albume', label: 'Albume', detail: '140g', foodId: 'albume', grams: 140 },
 ];
 const COLAZIONE_CARBS: SlotOption[] = [
   { id: 'pane', label: 'Pane bianco o integrale', detail: '50g', foodId: 'pane', grams: 50 },
   { id: 'cereali', label: 'Cereali', detail: '40g · All Bran / fiocchi di riso soffiato / avena / muesli', foodId: 'cereali', grams: 40 },
   { id: 'fette', label: 'Fette biscottate', detail: '4–5 fette', foodId: 'fette', grams: 35 },
+  { id: 'biscotti', label: 'Biscotti secchi', detail: '4–5 biscotti', foodId: 'biscotti', grams: 35 },
+];
+/** Training days with the whole breakfast before the workout get a larger carb portion. */
+const COLAZIONE_CARBS_PRE: SlotOption[] = [
+  { id: 'pane', label: 'Pane bianco o integrale', detail: '60g', foodId: 'pane', grams: 60 },
+  { id: 'cereali', label: 'Cereali', detail: '50g · All Bran / fiocchi di riso soffiato / avena / muesli', foodId: 'cereali', grams: 50 },
+  { id: 'fette', label: 'Fette biscottate', detail: '5–6 fette', foodId: 'fette', grams: 45 },
+  { id: 'biscotti', label: 'Biscotti secchi', detail: '5–6 biscotti', foodId: 'biscotti', grams: 45 },
 ];
 const COLAZIONE_DOLCE: SlotOption[] = [
   { id: 'marmellata', label: 'Marmellata', detail: '20g', foodId: 'marmellata', grams: 20 },
-  { id: 'miele', label: 'Miele', detail: '1 cucchiaino (~8g)', foodId: 'miele', grams: 8 },
+  { id: 'miele', label: 'Miele', detail: '1 cucchiaino (10g)', foodId: 'miele', grams: 10 },
   { id: 'frutto', label: 'Frutto', detail: 'frutti di bosco, lamponi o mezza banana', foodId: 'fruttoDolce', grams: 80 },
+];
+
+const PRE_WORKOUT_OPTS: SlotOption[] = [
+  { id: 'o1', label: 'Opzione 1', detail: 'Pane 40g (o 3–4 gallette) + marmellata 20g / miele 10g', grams: 100, per100: { kcal: 160, carbs: 34, protein: 4, fat: 1 } },
+  { id: 'o2', label: 'Opzione 2', detail: '1 banana + 1 cucchiaino di miele (10g)', grams: 100, per100: { kcal: 137, carbs: 35, protein: 1, fat: 0.5 } },
+  { id: 'o3', label: 'Opzione 3', detail: 'Pane tostato 40g (o biscotti secchi) + 3 datteri', grams: 100, per100: { kcal: 178, carbs: 38, protein: 4, fat: 1 } },
 ];
 
 // Spuntini composti: per100 = totale stimato sommando i componenti (valori CREA)
@@ -214,25 +236,40 @@ const SP_MATT_OPTS: SlotOption[] = [
 ];
 
 const SP_POM_OPTS: SlotOption[] = [
-  { id: 'o1', label: 'Opzione 1', detail: '1 frutto + parmigiano 15g', freq: 'parmigiano', lim: 'max 3 / sett', grams: 100, per100: { kcal: 149, carbs: 20, protein: 6, fat: 5 } },
-  { id: 'o2', label: 'Opzione 2', detail: 'Pane 50g + 30g bresaola / fesa / philadelphia', grams: 100, per100: { kcal: 185, carbs: 28, protein: 14, fat: 3 } },
-  { id: 'o3', label: 'Opzione 3', detail: 'Budino proteico / YOEGGS / barretta', grams: 100, per100: { kcal: 150, carbs: 14, protein: 18, fat: 3 } },
-  { id: 'o4', label: 'Opzione 4', detail: '1 frutto + frutta secca 10g / burro di arachidi 100% (1 cucchiaino)', grams: 100, per100: { kcal: 150, carbs: 22, protein: 3, fat: 6 } },
-  { id: 'o5', label: 'Opzione 5', detail: 'Yogurt magro 125g + 50g frutta fresca (mirtilli o frutti di bosco) + 10g frutta secca', grams: 100, per100: { kcal: 135, carbs: 14, protein: 7, fat: 6 } },
+  { id: 'o1', label: 'Opzione 1', detail: '1 frutto + parmigiano 20g (o frutta secca 10g / 1 cucchiaino di burro di arachidi) + 30g di gallette o biscotti secchi', freq: 'parmigiano', grams: 100, per100: { kcal: 304, carbs: 48.5, protein: 11, fat: 6.8 } },
+  { id: 'o2', label: 'Opzione 2', detail: 'Pane 60g + 30g bresaola / fesa di tacchino / philadelphia light (max 2 / sett) + 1 frutto o 20g marmellata', grams: 100, per100: { kcal: 320, carbs: 57, protein: 17, fat: 2 } },
+  { id: 'o3', label: 'Opzione 3', detail: 'Budino proteico / YOEGGS (max 3 / sett) / barretta proteica + 30g riso soffiato o 1 frutto o 2–3 biscotti secchi', grams: 100, per100: { kcal: 266, carbs: 38.5, protein: 20, fat: 3.5 } },
+  { id: 'o4', label: 'Opzione 4', detail: 'Yogurt magro 125g + 1 frutto (o frutti rossi) + 10g di frutta secca', grams: 100, per100: { kcal: 192, carbs: 25.5, protein: 8.5, fat: 6 } },
 ];
 
 const VERDURA: SlotOption = { id: 'verdura', label: 'Verdura / ortaggio', detail: 'mezzo piatto piano, cotta o cruda', foodId: 'verdura', grams: 200, per100: { kcal: 25, carbs: 4, protein: 1.5, fat: 0.3 } };
 
-function colazione(plan: Plan): Meal {
+// Total oil for the meal: both the raw dressing and what is used to cook.
+// A single figure (not the plan's 25–30g range) so it scales with the target.
+const OLIO: SlotOption = { id: 'olio', label: 'Olio EVO', detail: '27g · totale per condire e cucinare', foodId: 'olio', grams: 27, per100: { kcal: 899, carbs: 0, protein: 0, fat: 99.9 } };
+
+function colazione(plan: Plan, beforeWorkout: boolean): Meal {
+  const carbs = beforeWorkout
+    ? (plan.colazioneCarbPre ?? COLAZIONE_CARBS_PRE)
+    : (plan.colazioneCarb ?? COLAZIONE_CARBS);
   return {
     id: 'colazione', name: 'Colazione', icon: '☕',
-    note: "~1h30 prima dell'allenamento", noteOnlyTraining: true,
+    note: beforeWorkout ? "1h30–2h prima dell'allenamento" : "dopo l'allenamento",
+    noteOnlyTraining: true,
     waterNote: "1 bicchiere d'acqua non fredda",
     slots: [
       { id: 'prot', kind: 'choice', label: 'Base proteica', options: plan.colazioneProt ?? COLAZIONE_OPTS },
-      { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: plan.colazioneCarb ?? COLAZIONE_CARBS },
+      { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: carbs },
       { id: 'dolce', kind: 'choice', label: 'Marmellata / miele / frutto', options: plan.colazioneDolce ?? COLAZIONE_DOLCE },
     ],
+  };
+}
+
+function preWorkout(plan: Plan): Meal {
+  return {
+    id: 'preworkout', name: 'Pre-workout', icon: '🌅',
+    note: "1h / 45 min prima dell'allenamento", noteOnlyTraining: true,
+    slots: [{ id: 'opt', kind: 'choice', label: "Scegli un'opzione", options: plan.preWorkout ?? PRE_WORKOUT_OPTS }],
   };
 }
 
@@ -262,6 +299,11 @@ function verduraSlot(plan: Plan): Slot {
   return { id: 'verdura', kind: 'check', label: 'Verdura / ortaggio', detail: VERDURA.detail, grams: v.grams, per100: v.per100, foodId: v.foodId, macroSource: v.macroSource ?? 'estimate' };
 }
 
+function olioSlot(plan: Plan): Slot {
+  const o = plan.olio ?? OLIO;
+  return { id: 'olio', kind: 'check', label: 'Olio EVO', detail: OLIO.detail, grams: o.grams, per100: o.per100, foodId: o.foodId, macroSource: o.macroSource ?? 'estimate' };
+}
+
 function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: DayTypeLite): Meal {
   const gluc = dayType === 'allenamento' ? plan.glucidiAllenamento : plan.glucidiNonAllenamento;
   return {
@@ -272,6 +314,7 @@ function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: D
       verduraSlot(plan),
       { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: gluc },
       { id: 'prot', kind: 'choice', label: 'Fonte proteica', options: plan.proteine },
+      olioSlot(plan),
     ],
   };
 }
@@ -279,11 +322,15 @@ function mainMeal(id: string, name: string, icon: string, plan: Plan, dayType: D
 type DayTypeLite = 'allenamento' | 'nonallenamento' | 'pastolibero';
 
 /** Return the meals for a given day type, using the active plan. */
-export function mealsFor(dt: DayTypeLite, plan: Plan, _day?: Partial<DayLog>): Meal[] {
+export function mealsFor(dt: DayTypeLite, plan: Plan, day?: Partial<DayLog>): Meal[] {
   if (dt === 'allenamento') {
-    return [colazione(plan), spPost(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
+    // Split breakfast: the carbs go before the workout, the rest right after.
+    if (day?.colazioneSpezzata) {
+      return [preWorkout(plan), colazione(plan, false), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
+    }
+    return [colazione(plan, true), spPost(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
   }
   // 'nonallenamento' (and legacy 'pastolibero' days) share the same structure;
   // the free meal is now a toggle inside pranzo/cena rather than a day type.
-  return [colazione(plan), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'nonallenamento'), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), mainMeal('cena', 'Cena', '🌙', plan, 'nonallenamento')];
+  return [colazione(plan, false), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'nonallenamento'), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), mainMeal('cena', 'Cena', '🌙', plan, 'nonallenamento')];
 }

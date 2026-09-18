@@ -52,11 +52,14 @@
     clone.glucidiNonAllenamento = clone.glucidiNonAllenamento.map(ensureMacros);
     clone.colazioneProt = (clone.colazioneProt ?? []).map(ensureMacros);
     clone.colazioneCarb = (clone.colazioneCarb ?? []).map(ensureMacros);
+    clone.colazioneCarbPre = (clone.colazioneCarbPre ?? []).map(ensureMacros);
     clone.colazioneDolce = (clone.colazioneDolce ?? []).map(ensureMacros);
+    clone.preWorkout = (clone.preWorkout ?? []).map(ensureMacros);
     clone.spuntinoPost = (clone.spuntinoPost ?? []).map(ensureMacros);
     clone.spuntinoMattina = (clone.spuntinoMattina ?? []).map(ensureMacros);
     clone.spuntinoPomeriggio = (clone.spuntinoPomeriggio ?? []).map(ensureMacros);
     clone.verdura = ensureMacros(clone.verdura ?? { id: 'verdura', label: 'Verdura / ortaggio', grams: 200 });
+    clone.olio = ensureMacros(clone.olio ?? { id: 'olio', label: 'Olio EVO', grams: 27 });
     draft = clone;
     locked = false;
   }
@@ -267,7 +270,9 @@
 
       {@render optSection('Colazione · base proteica', draft.colazioneProt!, '+ Aggiungi opzione')}
       {@render optSection('Colazione · fonte glucidica', draft.colazioneCarb!, '+ Aggiungi opzione')}
+      {@render optSection("Colazione · fonte glucidica (prima dell'allenamento)", draft.colazioneCarbPre!, '+ Aggiungi opzione')}
       {@render optSection('Colazione · marmellata / miele / frutto', draft.colazioneDolce!, '+ Aggiungi opzione')}
+      {@render optSection('Pre-workout (colazione spezzata)', draft.preWorkout!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino post-workout', draft.spuntinoPost!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino mattina (e pomeriggio riposo)', draft.spuntinoMattina!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino pomeriggio (allenamento)', draft.spuntinoPomeriggio!, '+ Aggiungi opzione')}
@@ -284,10 +289,24 @@
         <div class="optkcal">≈ {optKcal(draft.verdura!)} kcal a porzione</div>
       </div>
 
+      <h4 class="sec">Olio EVO (pranzo / cena)</h4>
+      <div class="pe-opt">
+        <input class="det" bind:value={draft.olio!.detail} placeholder="Dettaglio (opzionale)" />
+        <div class="macros">
+          <label>g porz.<input type="number" bind:value={draft.olio!.grams} /></label>
+          <label>kcal/100g<input type="number" bind:value={draft.olio!.per100!.kcal} /></label>
+          <label>Carb<input type="number" bind:value={draft.olio!.per100!.carbs} /></label>
+          <label>Prot<input type="number" bind:value={draft.olio!.per100!.protein} /></label>
+          <label>Gras<input type="number" bind:value={draft.olio!.per100!.fat} /></label>
+        </div>
+        <div class="optkcal">≈ {optKcal(draft.olio!)} kcal a pasto</div>
+      </div>
+
       <h4 class="sec">Frequenze settimanali</h4>
       {#each draft.frequencies as f (f.key)}
         <div class="pe-freq">
           <input class="lbl" bind:value={f.label} />
+          <label>min/sett<input type="number" min="0" placeholder="—" bind:value={f.min} /></label>
           <label>max/sett<input type="number" min="0" placeholder="—" bind:value={f.max} /></label>
         </div>
       {/each}
@@ -355,7 +374,7 @@
   .pe-freq { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .pe-freq .lbl { flex: 2; }
   .pe-freq label { display: flex; flex-direction: column; align-items: center; font-size: 12px; font-weight: 600; color: var(--ink, #16281c); gap: 3px; }
-  .pe-freq label input { width: 64px; padding: 9px; border: 1.5px solid var(--line, #dce5df); border-radius: 8px; text-align: center; font-size: 16px; font-weight: 600; color: var(--ink, #16281c); }
+  .pe-freq label input { width: 54px; padding: 9px 4px; border: 1.5px solid var(--line, #dce5df); border-radius: 8px; text-align: center; font-size: 16px; font-weight: 600; color: var(--ink, #16281c); }
   .pe-freq label input:focus { border-color: var(--green, #2e7d4f); outline: none; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .actions .btn { flex: 1; min-width: 90px; }
