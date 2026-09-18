@@ -52,7 +52,6 @@
     clone.glucidiNonAllenamento = clone.glucidiNonAllenamento.map(ensureMacros);
     clone.colazioneProt = (clone.colazioneProt ?? []).map(ensureMacros);
     clone.colazioneCarb = (clone.colazioneCarb ?? []).map(ensureMacros);
-    clone.colazioneCarbPre = (clone.colazioneCarbPre ?? []).map(ensureMacros);
     clone.colazioneDolce = (clone.colazioneDolce ?? []).map(ensureMacros);
     clone.preWorkout = (clone.preWorkout ?? []).map(ensureMacros);
     clone.spuntinoPost = (clone.spuntinoPost ?? []).map(ensureMacros);
@@ -270,9 +269,8 @@
 
       {@render optSection('Colazione · base proteica', draft.colazioneProt!, '+ Aggiungi opzione')}
       {@render optSection('Colazione · fonte glucidica', draft.colazioneCarb!, '+ Aggiungi opzione')}
-      {@render optSection("Colazione · fonte glucidica (prima dell'allenamento)", draft.colazioneCarbPre!, '+ Aggiungi opzione')}
       {@render optSection('Colazione · marmellata / miele / frutto', draft.colazioneDolce!, '+ Aggiungi opzione')}
-      {@render optSection('Pre-workout (colazione spezzata)', draft.preWorkout!, '+ Aggiungi opzione')}
+      {@render optSection('Colazione pre-workout', draft.preWorkout!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino post-workout', draft.spuntinoPost!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino mattina (e pomeriggio riposo)', draft.spuntinoMattina!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino pomeriggio (allenamento)', draft.spuntinoPomeriggio!, '+ Aggiungi opzione')}

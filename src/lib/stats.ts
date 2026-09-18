@@ -119,7 +119,7 @@ export function dayCompletion(log: DayLog, plan: Plan): number {
     if (log.freeMeal === meal.id) continue; // free meal: not evaluated for completion
     const piatto = !!log.piatto?.[meal.id];
     for (const slot of meal.slots) {
-      if (slot.kind === 'freeToggle' || slot.kind === 'splitToggle') continue; // not fillable slots
+      if (slot.kind === 'freeToggle') continue; // not a fillable slot
       if (piatto && (slot.id === 'gluc' || slot.id === 'prot')) {
         total++; filled++; // covered by piatto
         continue;
