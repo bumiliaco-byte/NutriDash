@@ -25,7 +25,7 @@
 
   const DOW = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
   const MON = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-  const APP_VERSION = '1.0';
+  const APP_VERSION = '1.1';
   const GUIDE_URL = import.meta.env.BASE_URL + 'guida.html';
   const DAY_TYPES: { id: DayType; label: string; ic: string }[] = [
     { id: 'allenamento', label: 'Allenamento', ic: '🏋️' },
