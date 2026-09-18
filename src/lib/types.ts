@@ -126,6 +126,8 @@ export interface Plan {
   /** Snack options. */
   spuntinoPost?: SlotOption[];
   spuntinoMattina?: SlotOption[];
+  /** Morning snack after a split breakfast: the plan allows only the protein shake. */
+  spuntinoMattinaAllenamento?: SlotOption[];
   spuntinoPomeriggio?: SlotOption[];
   /** Vegetable serving (single, editable macros). */
   verdura?: SlotOption;

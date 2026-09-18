@@ -113,7 +113,7 @@ export const MEAL_IDEAS: string[] = [
 
 /** Build the default (V1) plan for a profile. */
 /** Bump when the plan's structural content changes so stored plans re-align once. */
-export const SEED_VERSION = 10;
+export const SEED_VERSION = 11;
 
 export function defaultPlan(profileId: string): Plan {
   const now = new Date().toISOString();
@@ -137,6 +137,7 @@ export function defaultPlan(profileId: string): Plan {
     preWorkout: withMacros(PRE_WORKOUT_OPTS),
     spuntinoPost: withMacros(SP_POST_OPTS),
     spuntinoMattina: withMacros(SP_MATT_OPTS),
+    spuntinoMattinaAllenamento: withMacros(SP_MATT_ALLEN),
     spuntinoPomeriggio: withMacros(SP_POM_OPTS),
     verdura: { ...VERDURA, per100: VERDURA.per100 ?? FOODS[VERDURA.foodId!]?.per100, macroSource: 'estimate' },
     olio: { ...OLIO, macroSource: 'estimate' },
@@ -160,7 +161,8 @@ export function scalePlanTo(plan: Plan, targetKcal: number): void {
   const lists: (SlotOption[] | undefined)[] = [
     plan.glucidiAllenamento, plan.glucidiNonAllenamento, plan.proteine,
     plan.colazioneProt, plan.colazioneCarb, plan.colazioneCarbPre, plan.colazioneDolce,
-    plan.preWorkout, plan.spuntinoPost, plan.spuntinoMattina, plan.spuntinoPomeriggio,
+    plan.preWorkout, plan.spuntinoPost, plan.spuntinoMattina, plan.spuntinoMattinaAllenamento,
+    plan.spuntinoPomeriggio,
     plan.olio ? [plan.olio] : undefined,
   ];
   for (const list of lists) {
@@ -235,6 +237,11 @@ const SP_MATT_OPTS: SlotOption[] = [
   { id: 'o4', label: 'Opzione 4', detail: 'Yogurt magro 125g + 50g frutta fresca (mirtilli o frutti di bosco)', grams: 100, per100: { kcal: 75, carbs: 12, protein: 5, fat: 1 } },
 ];
 
+// On a split-breakfast training day the plan prescribes only the shake.
+const SP_MATT_ALLEN: SlotOption[] = [
+  { id: 'o1', label: 'Shaker proteico', detail: 'whey 20g + 1 frutto (200g)', grams: 100, per100: { kcal: 164, carbs: 22, protein: 17, fat: 2 } },
+];
+
 const SP_POM_OPTS: SlotOption[] = [
   { id: 'o1', label: 'Opzione 1', detail: '1 frutto + parmigiano 20g (o frutta secca 10g / 1 cucchiaino di burro di arachidi) + 30g di gallette o biscotti secchi', freq: 'parmigiano', grams: 100, per100: { kcal: 304, carbs: 48.5, protein: 11, fat: 6.8 } },
   { id: 'o2', label: 'Opzione 2', detail: 'Pane 60g + 30g bresaola / fesa di tacchino / philadelphia light (max 2 / sett) + 1 frutto o 20g marmellata', grams: 100, per100: { kcal: 320, carbs: 57, protein: 17, fat: 2 } },
@@ -291,6 +298,13 @@ function spMattina(plan: Plan, id: string, name: string, icon: string): Meal {
   };
 }
 
+function spMattinaAllenamento(plan: Plan): Meal {
+  return {
+    id: 'spuntinoMattina', name: 'Spuntino mattina', icon: '🍎',
+    slots: [{ id: 'opt', kind: 'choice', label: 'Da piano', options: plan.spuntinoMattinaAllenamento ?? SP_MATT_ALLEN }],
+  };
+}
+
 function spPomTraining(plan: Plan): Meal {
   return {
     id: 'spuntinoPomeriggio', name: 'Spuntino pomeriggio', icon: '🍏',
@@ -332,7 +346,7 @@ export function mealsFor(dt: DayTypeLite, plan: Plan, day?: Partial<DayLog>): Me
     if (day?.colazioneUnica) {
       return [colazione(plan, true, true), spPost(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
     }
-    const meals = [preWorkout(plan), colazione(plan, true, false), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
+    const meals = [preWorkout(plan), colazione(plan, true, false), spMattinaAllenamento(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
     // Days recorded before the split breakfast keep their post-workout snack visible.
     if (day?.sel?.['postworkout.opt']) meals.splice(2, 0, spPost(plan));
     return meals;

@@ -57,6 +57,7 @@
     clone.preWorkout = (clone.preWorkout ?? []).map(ensureMacros);
     clone.spuntinoPost = (clone.spuntinoPost ?? []).map(ensureMacros);
     clone.spuntinoMattina = (clone.spuntinoMattina ?? []).map(ensureMacros);
+    clone.spuntinoMattinaAllenamento = (clone.spuntinoMattinaAllenamento ?? []).map(ensureMacros);
     clone.spuntinoPomeriggio = (clone.spuntinoPomeriggio ?? []).map(ensureMacros);
     clone.verdura = ensureMacros(clone.verdura ?? { id: 'verdura', label: 'Verdura / ortaggio', grams: 200 });
     clone.olio = ensureMacros(clone.olio ?? { id: 'olio', label: 'Olio EVO', grams: 27 });
@@ -275,6 +276,7 @@
       {@render optSection('Colazione pre-workout', draft.preWorkout!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino post-workout', draft.spuntinoPost!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino mattina (e pomeriggio riposo)', draft.spuntinoMattina!, '+ Aggiungi opzione')}
+      {@render optSection('Spuntino mattina (allenamento)', draft.spuntinoMattinaAllenamento!, '+ Aggiungi opzione')}
       {@render optSection('Spuntino pomeriggio (allenamento)', draft.spuntinoPomeriggio!, '+ Aggiungi opzione')}
 
       <h4 class="sec">Verdura / ortaggio</h4>
