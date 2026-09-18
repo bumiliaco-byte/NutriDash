@@ -12,10 +12,11 @@
       onNeedRefresh: () => (ready = true),
       onRegisteredSW(_url, registration) {
         if (!registration) return;
+        registration.update();
         // Look for a new build when the app comes back to the foreground.
         const check = () => { if (!document.hidden) registration.update(); };
         document.addEventListener('visibilitychange', check);
-        setInterval(check, 60 * 60 * 1000);
+        setInterval(check, 30 * 60 * 1000);
       },
     });
   });
