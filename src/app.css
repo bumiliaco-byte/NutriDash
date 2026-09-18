@@ -42,11 +42,6 @@ header.top{background:linear-gradient(135deg,var(--green),var(--green-d));color:
 .dt .ic{font-size:1.15rem;display:block;margin-bottom:2px}
 .dt.active{background:#fff;color:var(--green-d);border-color:#fff}
 
-.colvar{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}
-.cv{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.28);color:#fff;
-  border-radius:10px;padding:7px 4px;cursor:pointer;font-size:.72rem;font-weight:600}
-.cv.active{background:rgba(255,255,255,.9);color:var(--green-d);border-color:#fff}
-
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin:14px 0;overflow:hidden}
 .card .hd{display:flex;align-items:center;gap:10px;padding:14px 16px}
 .card .hd .ic{font-size:1.55rem;width:34px;text-align:center}
@@ -362,7 +357,6 @@ body.dark .monthgrid .mc.l4{background:#3c7d5b}
   .datebar{margin-top:9px;gap:5px}
   .datebar .nav{width:36px;height:36px;border-radius:9px}
   .daytypes{margin-top:9px;gap:6px}
-  .colvar{margin-top:6px}
   .dt{padding:6px 4px;border-radius:9px}
   .dt .ic{display:inline;font-size:1rem;margin:0 4px 0 0}
   .card{margin:10px 0;border-radius:12px}

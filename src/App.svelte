@@ -150,12 +150,6 @@
     await save();
   }
 
-  async function setColazione(spezzata: boolean) {
-    if (!day) return;
-    day.colazioneSpezzata = spezzata;
-    await save();
-  }
-
   async function resetDay() {
     if (!day) return;
     if (!confirm('Azzerare questa giornata?')) return;
@@ -332,16 +326,6 @@
           </button>
         {/each}
       </div>
-      {#if day.dayType === 'allenamento'}
-        <div class="colvar" role="group" aria-label="Tipo di colazione">
-          <button class="cv" class:active={!day.colazioneSpezzata} onclick={() => setColazione(false)}>
-            ☕ Colazione prima
-          </button>
-          <button class="cv" class:active={day.colazioneSpezzata} onclick={() => setColazione(true)}>
-            🌅 Colazione spezzata
-          </button>
-        </div>
-      {/if}
     {/if}
   </div>
 </header>

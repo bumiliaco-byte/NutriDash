@@ -25,7 +25,7 @@ export interface Food {
 }
 
 /** A slot inside a meal: either a single/multiple choice or a simple check. */
-export type SlotKind = 'choice' | 'check' | 'piatto' | 'freeToggle';
+export type SlotKind = 'choice' | 'check' | 'piatto' | 'freeToggle' | 'splitToggle';
 
 export interface SlotOption {
   id: string;

@@ -248,20 +248,24 @@ const VERDURA: SlotOption = { id: 'verdura', label: 'Verdura / ortaggio', detail
 // A single figure (not the plan's 25–30g range) so it scales with the target.
 const OLIO: SlotOption = { id: 'olio', label: 'Olio EVO', detail: '27g · totale per condire e cucinare', foodId: 'olio', grams: 27, per100: { kcal: 899, carbs: 0, protein: 0, fat: 99.9 } };
 
-function colazione(plan: Plan, beforeWorkout: boolean): Meal {
-  const carbs = beforeWorkout
+function colazione(plan: Plan, training: boolean, split: boolean): Meal {
+  const carbs = training && !split
     ? (plan.colazioneCarbPre ?? COLAZIONE_CARBS_PRE)
     : (plan.colazioneCarb ?? COLAZIONE_CARBS);
+  const slots: Slot[] = [
+    { id: 'prot', kind: 'choice', label: 'Base proteica', options: plan.colazioneProt ?? COLAZIONE_OPTS },
+    { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: carbs },
+    { id: 'dolce', kind: 'choice', label: 'Marmellata / miele / frutto', options: plan.colazioneDolce ?? COLAZIONE_DOLCE },
+  ];
+  if (training) {
+    slots.unshift({ id: 'spezzata', kind: 'splitToggle', label: 'Colazione spezzata', detail: "uno spuntino prima dell'allenamento, il resto dopo" });
+  }
   return {
     id: 'colazione', name: 'Colazione', icon: '☕',
-    note: beforeWorkout ? "1h30–2h prima dell'allenamento" : "dopo l'allenamento",
+    note: split ? "dopo l'allenamento" : "1h30–2h prima dell'allenamento",
     noteOnlyTraining: true,
     waterNote: "1 bicchiere d'acqua non fredda",
-    slots: [
-      { id: 'prot', kind: 'choice', label: 'Base proteica', options: plan.colazioneProt ?? COLAZIONE_OPTS },
-      { id: 'gluc', kind: 'choice', label: 'Fonte glucidica', options: carbs },
-      { id: 'dolce', kind: 'choice', label: 'Marmellata / miele / frutto', options: plan.colazioneDolce ?? COLAZIONE_DOLCE },
-    ],
+    slots,
   };
 }
 
@@ -326,11 +330,11 @@ export function mealsFor(dt: DayTypeLite, plan: Plan, day?: Partial<DayLog>): Me
   if (dt === 'allenamento') {
     // Split breakfast: the carbs go before the workout, the rest right after.
     if (day?.colazioneSpezzata) {
-      return [preWorkout(plan), colazione(plan, false), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
+      return [preWorkout(plan), colazione(plan, true, true), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
     }
-    return [colazione(plan, true), spPost(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
+    return [colazione(plan, true, false), spPost(plan), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'allenamento'), spPomTraining(plan), mainMeal('cena', 'Cena', '🌙', plan, 'allenamento')];
   }
   // 'nonallenamento' (and legacy 'pastolibero' days) share the same structure;
   // the free meal is now a toggle inside pranzo/cena rather than a day type.
-  return [colazione(plan, false), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'nonallenamento'), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), mainMeal('cena', 'Cena', '🌙', plan, 'nonallenamento')];
+  return [colazione(plan, false, false), spMattina(plan, 'spuntinoMattina', 'Spuntino mattina', '🍎'), mainMeal('pranzo', 'Pranzo', '🍽️', plan, 'nonallenamento'), spMattina(plan, 'spuntinoPomeriggio', 'Spuntino pomeriggio', '🍏'), mainMeal('cena', 'Cena', '🌙', plan, 'nonallenamento')];
 }
