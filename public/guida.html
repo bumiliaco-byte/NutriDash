@@ -65,7 +65,7 @@
     <li><a href="#installare">Mettere l'app sul telefono</a></li>
     <li><a href="#setup">Il primo avvio: il tuo piano</a></li>
     <li><a href="#giornata">Segnare la giornata</a></li>
-    <li><a href="#pasti">Pasti, piatto unico e pasto libero</a></li>
+    <li><a href="#pasti">I pasti: colazione, piatto unico, pasto libero, olio</a></li>
     <li><a href="#acqua">L'acqua</a></li>
     <li><a href="#settimana">Come va la settimana</a></li>
     <li><a href="#spesa">Lista della spesa e storico</a></li>
@@ -170,8 +170,9 @@
   <ul>
     <li><strong>La data</strong>, con le frecce <em>‹ ›</em> per spostarti al giorno prima o dopo
       (sul telefono funziona anche lo scorrimento con il dito verso destra o sinistra).</li>
-    <li><strong>Allenamento / Riposo</strong>: scegli com'è la giornata. Nei giorni di allenamento
-      il piano prevede porzioni e pasti diversi.</li>
+    <li><strong>Allenamento / Riposo</strong>: scegli com'è la giornata. Non è un dettaglio:
+      cambia sia l'elenco dei pasti sia le porzioni. Nei giorni di allenamento i carboidrati
+      di pranzo e cena sono più abbondanti e la colazione è organizzata diversamente (punto 6).</li>
     <li><strong>Macronutrienti</strong>: calorie, carboidrati, proteine e grassi di quello che hai
       spuntato, confrontati con il tuo obiettivo.</li>
     <li><strong>Completamento</strong>: la percentuale di pasti che hai già compilato.</li>
@@ -187,23 +188,65 @@
 </section>
 
 <section id="pasti">
-  <h2><span class="n">6</span> Pasti, piatto unico e pasto libero</h2>
+  <h2><span class="n">6</span> I pasti: colazione, piatto unico, pasto libero, olio</h2>
   <img src="guida/guida-04-pasto.png" alt="Card di un pasto" />
   <p>
     Ogni pasto è diviso in gruppi (fonte proteica, fonte glucidica, verdura…). Tocchi
     l'alimento che hai mangiato e si spunta: sotto a ogni voce vedi la porzione e le calorie.
   </p>
+
+  <h3>La colazione nei giorni di riposo</h3>
+  <p>
+    Una sola colazione: base proteica, fonte glucidica e una voce dolce (marmellata, miele o frutto).
+  </p>
+
+  <h3>La colazione nei giorni di allenamento</h3>
+  <p>
+    Qui il piano prevede due modi diversi, a seconda di quando ti alleni. In cima alla scheda
+    <strong>Colazione</strong> trovi la casella <strong>“Colazione unica maggiorata”</strong>:
+    è lei che decide quale dei due segui.
+  </p>
+  <img src="guida/guida-12-colazione.png" alt="Scheda Colazione con la casella della colazione unica" />
+  <dl>
+    <dt>Casella spenta · ti alleni la mattina</dt>
+    <dd>
+      La colazione è <strong>spezzata</strong>: prima una <strong>Colazione pre-workout</strong>
+      leggera (45–60 minuti prima), poi la <strong>Colazione post-workout</strong> vera e propria,
+      poi lo <strong>Spuntino mattina</strong> con lo shaker proteico.
+    </dd>
+    <dt>Casella accesa · ti alleni nel pomeriggio</dt>
+    <dd>
+      Una <strong>sola colazione</strong>, con porzioni più abbondanti, da fare 1 ora e mezza / 2 ore
+      prima dell'allenamento. Sparisce il pre-workout e al suo posto, più tardi, c'è lo
+      <strong>Spuntino post-workout</strong>.
+    </dd>
+  </dl>
+  <div class="nota">
+    La scelta vale <strong>solo per quel giorno</strong>: puoi allenarti la mattina un giorno e il
+    pomeriggio quello dopo, senza toccare altro.
+  </div>
+
   <h3>Piatto unico</h3>
   <p>
     Se hai mangiato un piatto unico (pasta e legumi, riso e ceci…) spunti quella voce al posto
-    di scegliere separatamente carboidrati e proteine. La verdura resta da spuntare a parte.
+    di scegliere separatamente carboidrati e proteine. La verdura e l'olio restano da spuntare a parte.
   </p>
+
+  <h3>Olio EVO</h3>
+  <p>
+    In fondo a pranzo e cena c'è la voce <strong>Olio EVO</strong>: è l'olio totale del pasto,
+    sia quello a crudo sia quello usato per cucinare. Spuntala quando l'hai usato, perché pesa
+    parecchio sul conto della giornata (circa 240 kcal a pasto).
+  </p>
+  <img src="guida/guida-13-olio.png" alt="La voce Olio EVO in fondo al pranzo" />
+
   <h3>Pasto libero</h3>
   <p>
     La casella gialla in cima a pranzo e cena. Spuntala quando mangi fuori piano: quel pasto
     non viene conteggiato e il resto del pasto si disattiva. Di norma è concesso
     <strong>una volta a settimana</strong>, e l'app tiene il conto per te.
   </p>
+
   <h3>Le note</h3>
   <p>
     Sotto ogni alimento selezionato puoi scrivere una nota (la marca, la ricetta, il tipo di pesce).
@@ -225,9 +268,18 @@
   <img src="guida/guida-05-statistiche.png" alt="Frequenze settimanali e statistiche" />
   <h3>Frequenze settimanali</h3>
   <p>
-    Molti piani dicono “carne rossa massimo una volta a settimana”, “pesce almeno tre volte”.
-    Qui vedi quante volte hai mangiato ogni categoria da lunedì a domenica e quanto ti manca
-    (o quanto hai sforato).
+    Molti piani dicono “carne rossa massimo una volta a settimana”, “pesce 2–3 volte”.
+    Qui vedi quante volte hai mangiato ogni categoria da lunedì a domenica e l'obiettivo
+    accanto (per esempio <em>2–3× / sett</em>).
+  </p>
+  <ul>
+    <li>Il numero diventa <strong>giallo</strong> finché sei <strong>sotto il minimo</strong>.</li>
+    <li>Diventa <strong>rosso</strong> se hai <strong>superato il massimo</strong>.</li>
+  </ul>
+  <p>
+    Quasi tutti i limiti sono indicazioni: anche se li superi puoi comunque segnare quello che
+    hai mangiato davvero. Solo dove il piano scrive esplicitamente “massimo una volta a settimana”
+    (carne rossa e salumi) l'alimento viene disattivato una volta raggiunto il limite.
   </p>
   <h3>Statistiche settimana</h3>
   <p>
@@ -400,6 +452,11 @@
     </dd>
     <dt>Posso usare l'app senza internet?</dt>
     <dd>Sì, dopo il primo accesso. Le modifiche si sincronizzano appena torni online.</dd>
+    <dt>Perché la giornata risulta più calorica di prima?</dt>
+    <dd>
+      Dalla versione 1.1 l'app conta anche l'<strong>olio EVO</strong> di pranzo e cena, che prima
+      non veniva conteggiato: sono circa 240 kcal a pasto. Spuntalo solo se lo hai usato davvero.
+    </dd>
     <dt>Ho sbagliato a segnare un giorno passato.</dt>
     <dd>Vai allo storico mensile, tocca quel giorno e correggilo: si aggiorna tutto da solo.</dd>
     <dt>Un'altra persona può usare l'app sul mio telefono?</dt>
