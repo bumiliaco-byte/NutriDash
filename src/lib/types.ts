@@ -25,7 +25,7 @@ export interface Food {
 }
 
 /** A slot inside a meal: either a single/multiple choice or a simple check. */
-export type SlotKind = 'choice' | 'check' | 'piatto' | 'freeToggle';
+export type SlotKind = 'choice' | 'check' | 'piatto' | 'freeToggle' | 'breakfastToggle';
 
 export interface SlotOption {
   id: string;
@@ -117,6 +117,8 @@ export interface Plan {
   /** Breakfast options (protein base + carb source). */
   colazioneProt?: SlotOption[];
   colazioneCarb?: SlotOption[];
+  /** Larger carb portions for the single breakfast eaten before an afternoon workout. */
+  colazioneCarbPre?: SlotOption[];
   /** Breakfast sweet/fruit add-on (marmellata / miele / frutto). */
   colazioneDolce?: SlotOption[];
   /** Pre-workout breakfast, eaten before training. */
@@ -185,6 +187,8 @@ export interface DayLog {
   planVersion: number;
   date: string; // YYYY-MM-DD
   dayType: DayType;
+  /** Training day: one larger breakfast instead of the pre/post-workout pair (afternoon workout). */
+  colazioneUnica?: boolean;
   water: number; // glasses
   /** Selected choice per `${mealId}.${slotId}` -> optionId. */
   sel: Record<string, string>;

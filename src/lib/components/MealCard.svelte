@@ -40,6 +40,12 @@
 
   const freeSel = $derived(day.freeMeal === meal.id);
   const freeSlot = $derived(meal.slots.find((s) => s.kind === 'freeToggle'));
+  const bfSlot = $derived(meal.slots.find((s) => s.kind === 'breakfastToggle'));
+  const bfOn = $derived(!!day.colazioneUnica);
+  function toggleBreakfast() {
+    day.colazioneUnica = !day.colazioneUnica;
+    save();
+  }
   const freeRule = $derived(plan.frequencies.find((x) => x.key === 'pastolibero'));
   const freeCapReached = $derived(freeRule?.max != null && (freqCounts['pastolibero'] ?? 0) >= freeRule.max);
   // Locked unless it's the one already chosen here: another meal is free today,
@@ -116,6 +122,16 @@
   </div>
   {#if open}
   <div class="bd">
+    {#if bfSlot}
+      <button class="piatto" class:sel={bfOn} onclick={toggleBreakfast}>
+        <span class="box">{bfOn ? '✓' : ''}</span>
+        <span class="txt">
+          <b>🏋️ {bfSlot.label}</b>
+          {#if bfSlot.detail}<span>{bfSlot.detail}</span>{/if}
+        </span>
+      </button>
+    {/if}
+
     {#if freeSlot}
       <button
         class="piatto"
@@ -157,7 +173,7 @@
     {/if}
 
     {#each meal.slots as slot}
-      {#if slot.kind !== 'freeToggle'}
+      {#if slot.kind !== 'freeToggle' && slot.kind !== 'breakfastToggle'}
       <div class="slot">
         <div class="lab">{slot.label}</div>
 
