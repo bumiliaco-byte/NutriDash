@@ -3,7 +3,7 @@
   import type { DayLog, DayType, Plan, Profile } from './lib/types';
   import { db, getActivePlan, loadPlanIndex, resolveProfileId, deleteDayLog } from './lib/db/db';
   import { fmt, parseDate, todayStr, loadDay, saveDay } from './lib/state';
-  import { mealsFor } from './lib/data/plan';
+  import { mealsFor, isShakerOption } from './lib/data/plan';
   import { syncEnabled, sync, currentEmail, currentUserId, onPasswordRecovery } from './lib/sync/supabase';
   import { downloadBackup, downloadCsv, importBackup } from './lib/backup';
   import { weekDays, logsInRange, tallyFrequencies, planIndexResolver } from './lib/stats';
@@ -64,6 +64,19 @@
   // options stay faithful even after the plan changes.
   const dayPlan = $derived(day && plan ? (planIndex.get(day.planId) ?? plan) : plan);
   const meals = $derived(day && dayPlan ? mealsFor(day.dayType, dayPlan, day) : []);
+  // The whey shaker is capped at one per day: find which snack slot currently
+  // holds a shaker so the other snacks can disable their shaker option.
+  const shakerSelKey = $derived.by(() => {
+    if (!day) return null;
+    for (const m of meals) {
+      for (const s of m.slots) {
+        if (s.kind !== 'choice' || !s.options) continue;
+        const sel = day.sel?.[`${m.id}.${s.id}`];
+        if (sel && s.options.some((o) => o.id === sel && isShakerOption(o))) return `${m.id}.${s.id}`;
+      }
+    }
+    return null;
+  });
   const dateLabel = $derived(labelFor(dateStr));
   const isToday = $derived(dateStr === todayStr());
 
@@ -337,7 +350,7 @@
     <WaterCard bind:day {save} />
     {#each meals as meal, i (meal.id)}
       {#if i > 0}<div class="mealsep"><span>+</span></div>{/if}
-      <MealCard {meal} bind:day dayType={day.dayType} {plan} {freqCounts} {dense} {save} />
+      <MealCard {meal} bind:day dayType={day.dayType} {plan} {freqCounts} {shakerSelKey} {dense} {save} />
     {/each}
     <button class="reset" onclick={resetDay}>↺ Azzera questa giornata</button>
 

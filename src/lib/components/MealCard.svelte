@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { DayLog, Meal, Plan, Slot, SlotOption } from '../types';
   import { optionMacros } from '../data/foods';
+  import { isShakerOption } from '../data/plan';
   import { mealMacros, slotMacros, PIATTO_UNICO } from '../compute';
 
-  let { meal, day = $bindable(), dayType, plan, freqCounts, dense = false, save }: {
-    meal: Meal; day: DayLog; dayType: string; plan: Plan; freqCounts: Record<string, number>; dense?: boolean; save: () => void;
+  let { meal, day = $bindable(), dayType, plan, freqCounts, shakerSelKey = null, dense = false, save }: {
+    meal: Meal; day: DayLog; dayType: string; plan: Plan; freqCounts: Record<string, number>; shakerSelKey?: string | null; dense?: boolean; save: () => void;
   } = $props();
 
   // Collapsible body: in compact view cards start closed, expandable on tap.
@@ -94,9 +95,17 @@
     if (!f?.hard || f.max == null) return false;
     return (freqCounts[opt.freq] ?? 0) >= f.max;
   }
+  /** True when the shaker is already taken by another snack today (max 1/day). */
+  function shakerBlocked(slot: Slot, opt: SlotOption): boolean {
+    return isShakerOption(opt) && !!shakerSelKey && shakerSelKey !== key(slot) && !isSel(slot, opt);
+  }
   /** Disable an option when its cap is reached, unless it's the one already selected here. */
   function optDisabled(slot: Slot, opt: SlotOption): boolean {
-    return capReached(opt) && !isSel(slot, opt);
+    return (capReached(opt) && !isSel(slot, opt)) || shakerBlocked(slot, opt);
+  }
+  /** Reason shown under a disabled option. */
+  function disabledReason(slot: Slot, opt: SlotOption): string {
+    return shakerBlocked(slot, opt) ? 'shaker già scelto oggi (max 1 al giorno)' : 'max settimanale raggiunto';
   }
 
   function noteVal(k: string) { return day.notes[k] ?? ''; }
@@ -195,7 +204,7 @@
                   {#if opt.detail}<span>{opt.detail}</span>{/if}
                   {#if optMac(opt)}<span class="macs"><b class="k">{optKcal(opt)} kcal</b> · C {optMac(opt)!.c} · P {optMac(opt)!.p} · G {optMac(opt)!.f} · {sourceLabel(opt.macroSource)}</span>{/if}
                   {#if opt.lim}<span class="lim">{opt.lim}</span>{/if}
-                  {#if optDisabled(slot, opt)}<span class="lim over">max settimanale raggiunto</span>{/if}
+                  {#if optDisabled(slot, opt)}<span class="lim over">{disabledReason(slot, opt)}</span>{/if}
                 </span>
               </button>
               {#if isSel(slot, opt)}

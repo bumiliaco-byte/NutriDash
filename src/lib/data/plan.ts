@@ -1,6 +1,16 @@
 import type { DayLog, FrequencyRule, Meal, Plan, Season, Slot, SlotOption } from '../types';
 import { FOODS } from './foods';
 
+/**
+ * True when a snack option includes the daily whey protein shaker.
+ * The plan allows at most one shaker per day, so selecting one snack's shaker
+ * inhibits the shaker option in the other snacks. Detected from the option text
+ * so it keeps working for plans already saved before this rule existed.
+ */
+export function isShakerOption(opt: SlotOption): boolean {
+  return /shaker|whey/i.test(`${opt.label} ${opt.detail ?? ''}`);
+}
+
 /** Attach embedded per100 macros (from FOODS) so the plan is self-contained. */
 function withMacros(opts: SlotOption[]): SlotOption[] {
   return opts.map(o => ({
